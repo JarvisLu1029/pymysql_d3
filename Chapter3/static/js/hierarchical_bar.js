@@ -1,9 +1,66 @@
+const marginTop = 40;
+const marginRight = 30;
+const marginBottom = 0;
+const marginLeft = 100;
+const barStep = 40;
+const barPadding = 10 / barStep;
+const duration = 750;
+const width = 960;
+
+const color = d3.scaleOrdinal([true, false], ["steelblue", "#aaa"]);
+
+const x = d3.scaleLinear().range([marginLeft, width - marginRight]);
+
+const xAxis = g => g
+    .attr("class", "x-axis")
+    .attr("transform", `translate(0,${marginTop})`)
+    .call(d3.axisTop(x).ticks(width / 80, "s"))
+    .call(g => (g.selection ? g.selection() : g).select(".domain").remove());
+
+const yAxis = g => g
+    .attr("class", "y-axis")
+    .attr("transform", `translate(${marginLeft + 0.5},0)`)
+    .call(g => g.append("line")
+        .attr("stroke", "currentColor")
+        .attr("y1", marginTop)
+        .attr("y2", height - marginBottom));
+
+const tooltip = d3.select("#hierarchical_chart_tooltip");
+
+let root;
+let height;
+
+function hierarchical_chart() {
+    const svg = d3.select("#hierarchical_chart").append("svg")
+        .attr("viewBox", [0, 0, width, height])
+        .attr("width", width)
+        .attr("height", height)
+        .attr("style", "max-width: 100%; height: auto;");
+
+    x.domain([0, root.value]);
+
+    svg.append("rect")
+        .attr("class", "background")
+        .attr("fill", "none")
+        .attr("pointer-events", "all")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("cursor", "pointer")
+        .on("click", (event, d) => up(svg, d));
+
+    svg.append("g").call(xAxis);
+    svg.append("g").call(yAxis);
+
+    down(svg, root);
+}
+
+
 function bar(svg, down, d, selector) {
     const g = svg.insert("g", selector)
         .attr("class", "enter")
         .attr("transform", `translate(0,${marginTop + barStep * barPadding})`)
         .attr("text-anchor", "end")
-        .style("font", "10px sans-serif");
+        .style("font", "13px sans-serif");
 
     const bar = g.selectAll("g")
         .data(d.children)
@@ -20,7 +77,22 @@ function bar(svg, down, d, selector) {
     bar.append("rect")
         .attr("x", x(0))
         .attr("width", d => x(d.value) - x(0))
-        .attr("height", barStep * (1 - barPadding));
+        .attr("height", barStep * (1 - barPadding))
+        .attr("fill", d => color(!!d.children))
+        .on("mouseover", function (event, d) {
+            tooltip.style("visibility", "visible")
+                .text(`${d.data.name}: ${d.value}`);
+            d3.select(this).attr("stroke", "black").attr("stroke-width", 1.5);
+        })
+        .on("mousemove", function (event) {
+            tooltip
+                .style("top", (event.pageY - 10) + "px")
+                .style("left", (event.pageX + 10) + "px");
+        })
+        .on("mouseout", function () {
+            tooltip.style("visibility", "hidden");
+            d3.select(this).attr("stroke", null);
+        });
 
     return g;
 }
@@ -43,13 +115,11 @@ function down(svg, d) {
     exit.selectAll("rect")
         .attr("fill-opacity", p => p === d ? 0 : null)
 
-
     exit.transition(transition1).attr("fill-opacity", 0).remove();
 
     const enter = bar(svg, down, d, ".y-axis").attr("fill-opacity", 0);
 
     enter.transition(transition1).attr("fill-opacity", 1);
-
 
     enter.selectAll("g")
         .attr("transform", stack(d.index))

@@ -36,18 +36,32 @@
     //     { label: 'E', value: 20 },
     // ]);
 
-    // 使用 fetch 載入資料並呼叫 function 繪圖
-    function renderMainPieChart() {
+    async function renderMainPieChart() {
         fetch('/api/category_pie')
             .then(response => response.json())
             .then(data => {
-                renderPieChart(data);
+                renderPieChart(data, "#pie_chart", (label) => {
+                    // 點擊主分類後載入子分類資料
+                    fetch(`/api/sub_category_pie/${label}`)
+                        .then(response => response.json())
+                        .then(subData => {
+                            renderPieChart(subData, "#pie_chart");  // 子分類圖，不需要再有 click handler
+                            document.getElementById('back_to_main_pie_button').style.display = 'block';
+                        })
+                        .catch(error => {
+                            console.error('子分類資料載入失敗:', error);
+                        });
+                });
+
                 document.getElementById('back_to_main_pie_button').style.display = 'none';
             })
             .catch(error => {
-                console.error('資料載入失敗:', error);
+                console.error('主分類資料載入失敗:', error);
             });
     }
+
+    // 初次載入
     renderMainPieChart();
+
 
 </script>

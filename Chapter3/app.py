@@ -1,6 +1,7 @@
 from flask import Flask, render_template, jsonify
 from chart_data import get_category_chart_data, \
-    get_sub_category_chart_data, get_profit_data
+    get_sub_category_chart_data, get_quantity_data, \
+    get_products_and_order_details
 
 app = Flask(__name__)
 # __name__ 用來定位目前載入資料夾的位置
@@ -18,7 +19,6 @@ def index():
 
 @app.route('/api/category_pie')
 def category_pie():
-    
     category_pie_data = get_category_chart_data()
 
     return jsonify(category_pie_data)
@@ -31,11 +31,18 @@ def sub_category_pie(category):
     return jsonify(sub_category_pie_data)
 
 
-@app.route('/api/hierarchical-data')
+@app.route('/api/hierarchical_data')
 def hierachical_data():
-    profit_data = get_profit_data()
+    quantity_data = get_quantity_data()
     
-    return jsonify(profit_data)
+    return jsonify(quantity_data)
+
+
+@app.route('/api/products_and_order_details')
+def products_and_order_details():
+    products_and_order_details_data = get_products_and_order_details()
+
+    return jsonify(products_and_order_details_data)
 
 
 if __name__ == "__main__":

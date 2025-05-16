@@ -8,8 +8,8 @@
     }
 </style>
 
-<h2>Hierarchical Bar Chart</h2>
-<div id="chart"></div>
+<h2>各類別銷售數量</h2>
+<div id="hierarchical_chart"></div>
 <div id="hierarchical_chart_tooltip" style="
     position: absolute;
     visibility: hidden;
@@ -46,62 +46,9 @@
     //     ]
     // };
 
-    const marginTop = 30;
-    const marginRight = 30;
-    const marginBottom = 0;
-    const marginLeft = 100;
-    const barStep = 27;
-    const barPadding = 3 / barStep;
-    const duration = 750;
-    const width = 960;
-
-    const color = d3.scaleOrdinal([true, false], ["steelblue", "#aaa"]);
-
-    const x = d3.scaleLinear().range([marginLeft, width - marginRight]);
-
-    const xAxis = g => g
-        .attr("class", "x-axis")
-        .attr("transform", `translate(0,${marginTop})`)
-        .call(d3.axisTop(x).ticks(width / 80, "s"))
-        .call(g => (g.selection ? g.selection() : g).select(".domain").remove());
-
-    const yAxis = g => g
-        .attr("class", "y-axis")
-        .attr("transform", `translate(${marginLeft + 0.5},0)`)
-        .call(g => g.append("line")
-            .attr("stroke", "currentColor")
-            .attr("y1", marginTop)
-            .attr("y2", height - marginBottom));
-
-    let root; // 在 fetch 完成後設值
-    let height;
-
-    function chart() {
-        const svg = d3.select("#chart").append("svg")
-            .attr("viewBox", [0, 0, width, height])
-            .attr("width", width)
-            .attr("height", height)
-            .attr("style", "max-width: 100%; height: auto;");
-
-        x.domain([0, root.value]);
-
-        svg.append("rect")
-            .attr("class", "background")
-            .attr("fill", "none")
-            .attr("pointer-events", "all")
-            .attr("width", width)
-            .attr("height", height)
-            .attr("cursor", "pointer")
-            .on("click", (event, d) => up(svg, d));
-
-        svg.append("g").call(xAxis);
-        svg.append("g").call(yAxis);
-
-        down(svg, root);
-    }
 
     // 使用 fetch 取得資料
-    fetch('/api/hierarchical-data')
+    fetch('/api/hierarchical_data')
         .then(response => response.json())
         .then(data => {
             root = d3.hierarchy(data)
@@ -115,7 +62,7 @@
             root.each(d => d.children && (max = Math.max(max, d.children.length)));
             height = max * barStep + marginTop + marginBottom;
 
-            chart(); // 初始化圖表
+            hierarchical_chart(); // 初始化圖表
         })
         .catch(error => {
             console.error("載入資料失敗：", error);

@@ -63,12 +63,12 @@ def get_sub_category_chart_data(category):
 
     return sub_category_pie_data
 
-def get_profit_data():
-    profit_query = """
+def get_quantity_data():
+    quantity_query = """
         SELECT 
             P.category,
             P.sub_category, 
-            SUM(O.quantity) AS profit
+            SUM(O.quantity) AS quantity
         FROM 
             superstore.Products AS P
         JOIN 
@@ -76,20 +76,19 @@ def get_profit_data():
             ON P.product_id = O.product_id
         GROUP BY 
             P.category, P.sub_category;
-
         """
-    profit_count_result = sql_query(profit_query)
-    print(profit_count_result)
+    
+    profit_count_result = sql_query(quantity_query)
 
     result = {
-        "name": "Profit",
+        "name": "Quantity",
         "children": []
     }
 
     for profit_count in profit_count_result:
         category = profit_count["category"]
         sub_category = profit_count["sub_category"]
-        profit = profit_count["profit"]
+        profit = profit_count["quantity"]
         
         # 檢查 category 是否已存在於 result 中
         category_found = False
@@ -114,3 +113,15 @@ def get_profit_data():
                 })
 
     return result
+
+
+def get_products_and_order_details():
+    products_and_order_details_query = """
+    SELECT category, sub_category, product_name, SUM(sales) AS sales, SUM(profit) AS profit FROM superstore.OrderDetails AS O
+    JOIN superstore.Products AS P ON O.product_id = P.product_id
+    GROUP BY category, sub_category, product_name
+    """
+
+    products_and_order_details_result = sql_query(products_and_order_details_query)
+
+    return products_and_order_details_result
