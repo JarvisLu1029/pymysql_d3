@@ -3,7 +3,7 @@ from configparser import ConfigParser
 
 # 讀取 .env 檔案取得資料庫連線資訊
 config = ConfigParser()
-config.read('.env')
+config.read('config.ini')
 
 
 def sql_query(query, params=None):
@@ -19,11 +19,18 @@ def sql_query(query, params=None):
         cursorclass=pymysql.cursors.DictCursor,
     )
 
-    with connection.cursor() as cursor:
-        cursor.execute(query, params)
-        result = cursor.fetchall()
-    
-    # connection.close()
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(query, params)
+            result = cursor.fetchall()
+
+    except Exception as e:
+        print(f"Error executing query: {e}")
+        
+    finally:
+        # 確保連線被關閉
+        connection.close()
+
     return result
 
 
@@ -80,6 +87,30 @@ def get_quantity_data():
     
     profit_count_result = sql_query(quantity_query)
 
+    # 將資料整理成
+    """
+    data = {
+        name: "Root",
+        children: [
+            {
+                name: "Group A",
+                children: [
+                    { name: "Item A1", value: 100 },
+                    { name: "Item A2", value: 300 }
+                ]
+            },
+            {
+                name: "Group B",
+                children: [
+                    { name: "Item B1", value: 200 },
+                    { name: "Item B2", value: 150 },
+                    { name: "Item B3", value: 80 }
+                ]
+            }
+        ]
+    };
+    """
+
     result = {
         "name": "Quantity",
         "children": []
@@ -123,5 +154,7 @@ def get_products_and_order_details():
     """
 
     products_and_order_details_result = sql_query(products_and_order_details_query)
+
+    products_and_order_details_result = [{**i, 'profit': round(i['profit']/i['sales'], 2)*100} for i in products_and_order_details_result]
 
     return products_and_order_details_result

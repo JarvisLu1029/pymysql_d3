@@ -40,6 +40,7 @@ function renderPieChart(data, selector = "#pie_chart", onClickHandler = null) {
         .join("path")
         .attr("fill", d => color(d.data.label))
         .attr("d", arc)
+        .attr("cursor", "pointer")
         .on("click", (event, d) => {
             if (typeof onClickHandler === "function") {
                 onClickHandler(d.data.label);

@@ -5,17 +5,26 @@ function drawScatterplot(data) {
         margin = { top: 20, right: 30, bottom: 30, left: 40 };
 
     // 假設 data 是一個陣列，每個元素都有 x 和 y 屬性
-    const xExtent = d3.extent(data, d => d.sales); // [minX, maxX]
-    const yExtent = d3.extent(data, d => d.profit); // [minY, maxY]
+    // const xExtent = d3.extent(data, d => d.sales); // [minX, maxX]
+    // const yExtent = d3.extent(data, d => d.profit); // [minY, maxY]
 
 
     const x = d3.scaleLinear()
-        .domain(xExtent)
-        .range([margin.left, width - margin.right]);
+        .domain([-1000, 10000])  // 自訂 X 軸數值範圍
+        .range([margin.left, width - margin.right]);  // 對應畫布上的實際像素範圍
 
     const y = d3.scaleLinear()
-        .domain(yExtent)
-        .range([height - margin.bottom, margin.top]);
+        .domain([-100, 100])  // 自訂 Y 軸數值範圍
+        .range([height - margin.bottom, margin.top]);  // Y 軸通常反向：數值越大越靠上
+
+
+    // const x = d3.scaleLinear()
+    //     .domain(xExtent)
+    //     .range([margin.left, width - margin.right]);
+
+    // const y = d3.scaleLinear()
+    //     .domain(yExtent)
+    //     .range([height - margin.bottom, margin.top]);
 
 
     // 示範資料
