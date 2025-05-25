@@ -12,31 +12,35 @@ def search_user_by_name(name):
         password=config.get('DB', 'password'),
         port=config.getint('DB', 'port'),
         cursorclass=pymysql.cursors.DictCursor,
-        database="employee_management"
+        database="chapter2"
     )
 
     with connection.cursor() as cursor:
         # 使用 SQL 查詢語句
-        sql = "SELECT * FROM main_user WHERE name = %s"
-        cursor.execute(sql, (name,))
+        query = "SELECT name, age FROM user WHERE name = %s"
+        cursor.execute(query, (name,))
         result = cursor.fetchall()
     connection.close()
     return result
 
 
-# 將 SQL 查詢寫成 Function 
-def sql_query(query):
+def insert_user(name, age, username, password):
     connection = pymysql.connect(
         host=config.get('DB', 'host'),
         user=config.get('DB', 'user'),
         password=config.get('DB', 'password'),
         port=config.getint('DB', 'port'),
         cursorclass=pymysql.cursors.DictCursor,
+        database="chapter2"
     )
 
     with connection.cursor() as cursor:
-        cursor.execute(query)
-        result = cursor.fetchall()
-    
+        sql = """
+        INSERT INTO user (name, age, username, password)
+        VALUES (%s, %s, %s, %s)
+        """
+
+        cursor.execute(sql, (name, age, username, password))
+        connection.commit()
     connection.close()
-    return result
+    

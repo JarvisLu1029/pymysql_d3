@@ -3,8 +3,8 @@ from chart_data import get_category_chart_data, \
     get_sub_category_chart_data, get_quantity_data, \
     get_products_and_order_details
 
-app = Flask(__name__)
 # __name__ 用來定位目前載入資料夾的位置
+app = Flask(__name__)
 
 
 @app.route('/say_hello')  # Python 內建的裝飾詞，讓Flask監聽此URL 並return 返還結果
