@@ -71,6 +71,33 @@ def get_sub_category_chart_data(category):
 
     return sub_category_pie_data
 
+
+def get_products_and_order_details():
+    products_and_order_details_query = """
+    SELECT category, sub_category, product_name, SUM(sales) AS sales, SUM(profit) AS profit FROM OrderDetails AS O
+    JOIN superstore.Products AS P ON O.product_id = P.product_id
+    GROUP BY category, sub_category, product_name
+    """
+
+    """
+    將資料整理成
+    data = [
+            { sales: 10, profit: 20, product_name: "A" },
+            { sales: 30, profit: 40, product_name: "B" },
+            { sales: 50, profit: 60, product_name: "C" },
+            { sales: 70, profit: 80, product_name: "D" },
+            { sales: 50, profit: 90, product_name: "C" },
+            { sales: 90, profit: 100, product_name: "E" }
+        ];
+    """
+
+    products_and_order_details_result = sql_query(products_and_order_details_query)
+
+    products_and_order_details_result = [{**i, 'profit': round(i['profit']/i['sales'], 2)*100} for i in products_and_order_details_result]
+
+    return products_and_order_details_result
+
+
 def get_quantity_data():
     quantity_query = """
         SELECT 
@@ -147,15 +174,3 @@ def get_quantity_data():
     return result
 
 
-def get_products_and_order_details():
-    products_and_order_details_query = """
-    SELECT category, sub_category, product_name, SUM(sales) AS sales, SUM(profit) AS profit FROM OrderDetails AS O
-    JOIN superstore.Products AS P ON O.product_id = P.product_id
-    GROUP BY category, sub_category, product_name
-    """
-
-    products_and_order_details_result = sql_query(products_and_order_details_query)
-
-    products_and_order_details_result = [{**i, 'profit': round(i['profit']/i['sales'], 2)*100} for i in products_and_order_details_result]
-
-    return products_and_order_details_result

@@ -1,4 +1,3 @@
 pymysql
 pandas
-sqlalchemy
 Flask
