@@ -1,0 +1,70 @@
+<title>D3.js 長條圖示範</title>
+<style>
+    .bar {
+        fill: steelblue;
+    }
+
+    .bar:hover {
+        fill: orange;
+    }
+
+    .axis-label {
+        font-size: 12px;
+    }
+</style>
+
+<h2>D3.js 長條圖</h2>
+<svg width="600" height="400"></svg>
+
+<script>
+    // 資料
+    const data = [
+        { name: 'A', value: 30 },
+        { name: 'B', value: 80 },
+        { name: 'C', value: 45 },
+        { name: 'D', value: 60 },
+        { name: 'E', value: 20 },
+        { name: 'F', value: 90 },
+        { name: 'G', value: 50 },
+    ];
+
+    const svg = d3.select("svg");
+    const width = +svg.attr("width");
+    const height = +svg.attr("height");
+    const margin = { top: 20, right: 30, bottom: 30, left: 40 };
+    const chartWidth = width - margin.left - margin.right;
+    const chartHeight = height - margin.top - margin.bottom;
+
+    // 建立 X 與 Y 比例尺
+    const x = d3.scaleBand()
+        .domain(data.map(d => d.name))
+        .range([0, chartWidth])
+        .padding(0.1);
+
+    const y = d3.scaleLinear()
+        .domain([0, d3.max(data, d => d.value)])
+        .nice()
+        .range([chartHeight, 0]);
+
+    const g = svg.append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    // 繪製 X 軸
+    g.append("g")
+        .attr("transform", `translate(0,${chartHeight})`)
+        .call(d3.axisBottom(x));
+
+    // 繪製 Y 軸
+    g.append("g")
+        .call(d3.axisLeft(y));
+
+    // 畫出長條
+    g.selectAll(".bar")
+        .data(data)
+        .join("rect")
+        .attr("class", "bar")
+        .attr("x", d => x(d.name))
+        .attr("y", d => y(d.value))
+        .attr("width", x.bandwidth())
+        .attr("height", d => chartHeight - y(d.value));
+</script>

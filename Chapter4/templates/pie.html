@@ -1,0 +1,67 @@
+<style>
+    body {
+        font-family: sans-serif;
+    }
+
+    .label {
+        font-size: 12px;
+        fill: white;
+        text-anchor: middle;
+    }
+</style>
+
+<h2>產品訂單比例</h2>
+<button id="back_to_main_pie_button" style="display: none" onclick="renderMainPieChart()">back</button>
+<div id="pie_chart" width="500" height="500"></div>
+<div id="pie_chart_tooltip" style="
+    position: absolute;
+    visibility: hidden;
+    background-color: rgba(0,0,0,0.7);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    pointer-events: none;
+    z-index: 100;">
+</div>
+
+
+<script src="{{ url_for('static', filename='js/pie_chart.js') }}"></script>
+<script>
+    // renderPieChart([
+    //     { label: 'A', value: 30 },
+    //     { label: 'B', value: 70 },
+    //     { label: 'C', value: 45 },
+    //     { label: 'D', value: 65 },
+    //     { label: 'E', value: 20 },
+    // ]);
+
+    async function renderMainPieChart() {
+        fetch('/api/category_pie')
+            .then(response => response.json())
+            .then(data => {
+                renderPieChart(data, "#pie_chart", (label) => {
+                    // 點擊主分類後載入子分類資料
+                    fetch(`/api/sub_category_pie/${label}`)
+                        .then(response => response.json())
+                        .then(subData => {
+                            renderPieChart(subData, "#pie_chart");  // 子分類圖，不需要再有 click handler
+                            document.getElementById('back_to_main_pie_button').style.display = 'block';
+                        })
+                        .catch(error => {
+                            console.error('子分類資料載入失敗:', error);
+                        });
+                });
+
+                document.getElementById('back_to_main_pie_button').style.display = 'none';
+            })
+            .catch(error => {
+                console.error('主分類資料載入失敗:', error);
+            });
+    }
+
+    // 初次載入
+    renderMainPieChart();
+
+
+</script>
