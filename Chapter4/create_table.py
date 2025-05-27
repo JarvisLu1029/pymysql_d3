@@ -1,13 +1,16 @@
 import pymysql
+import configparser
 
-# Connect to the database
+config = configparser.ConfigParser()
+config.read('../Chapter1/config.ini')
+
 conn = pymysql.connect(
-    host='192.168.168.51',
-    user='root',
-    password='mca_ems',
-    port=3307,
+    host=config.get('DB', 'host'),
+    user=config.get('DB', 'user'),
+    password=config.get('DB', 'password'),
+    port=config.getint('DB', 'port'),
     cursorclass=pymysql.cursors.DictCursor,
-    database='superstore'
+    database='superstore3'
 )
 
 # Create tables

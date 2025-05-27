@@ -3,7 +3,7 @@ from configparser import ConfigParser
 
 # 讀取 .env 檔案取得資料庫連線資訊
 config = ConfigParser()
-config.read('config.ini')
+config.read('../Chapter1/config.ini')
 
 
 def sql_query(query, params=None):
@@ -17,6 +17,7 @@ def sql_query(query, params=None):
         password=config.get('DB', 'password'),
         port=config.getint('DB', 'port'),
         cursorclass=pymysql.cursors.DictCursor,
+        database='superstore3'
     )
 
     try:
@@ -37,7 +38,7 @@ def sql_query(query, params=None):
 def get_category_chart_data() -> list[dict[str, int]]:
     # 取得所有 category 的資料
     category_query = """
-        SELECT P.category, COUNT(*) as count FROM superstore.Products as P 
+        SELECT P.category, COUNT(*) as count FROM Products as P 
         JOIN superstore.OrderDetails as O ON P.product_id = O.product_id
         GROUP BY category;
     """
@@ -58,7 +59,7 @@ def get_category_chart_data() -> list[dict[str, int]]:
 
 def get_sub_category_chart_data(category):
     sub_category_query = """
-        SELECT P.sub_category, COUNT(*) as count FROM superstore.Products as P 
+        SELECT P.sub_category, COUNT(*) as count FROM Products as P 
         JOIN superstore.OrderDetails as O ON P.product_id = O.product_id
         WHERE P.category = %s
         GROUP BY sub_category; 
@@ -148,7 +149,7 @@ def get_quantity_data():
 
 def get_products_and_order_details():
     products_and_order_details_query = """
-    SELECT category, sub_category, product_name, SUM(sales) AS sales, SUM(profit) AS profit FROM superstore.OrderDetails AS O
+    SELECT category, sub_category, product_name, SUM(sales) AS sales, SUM(profit) AS profit FROM OrderDetails AS O
     JOIN superstore.Products AS P ON O.product_id = P.product_id
     GROUP BY category, sub_category, product_name
     """
