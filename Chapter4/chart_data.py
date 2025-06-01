@@ -17,7 +17,7 @@ def sql_query(query, params=None):
         password=config.get('DB', 'password'),
         port=config.getint('DB', 'port'),
         cursorclass=pymysql.cursors.DictCursor,
-        database='superstore3'
+        database='superstore'
     )
 
     try:
@@ -94,8 +94,9 @@ def get_products_and_order_details():
     products_and_order_details_result = sql_query(products_and_order_details_query)
 
     products_and_order_details_result = [{**i, 'profit': round(i['profit']/i['sales'], 2)*100} for i in products_and_order_details_result]
+    sub_category = {i['sub_category'] for i in products_and_order_details_result}
 
-    return products_and_order_details_result
+    return products_and_order_details_result, sub_category
 
 
 def get_quantity_data():

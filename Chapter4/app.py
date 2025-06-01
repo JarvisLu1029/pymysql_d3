@@ -40,9 +40,12 @@ def hierachical_data():
 
 @app.route('/api/products_and_order_details')
 def products_and_order_details():
-    products_and_order_details_data = get_products_and_order_details()
+    products_and_order_details_data, sub_category = get_products_and_order_details()
 
-    return jsonify(products_and_order_details_data)
+    return jsonify({
+                "data": products_and_order_details_data,
+                "sub_category": list(sub_category)
+            })
 
 
 if __name__ == "__main__":
