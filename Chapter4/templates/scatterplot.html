@@ -6,19 +6,14 @@
     <title>D3 Brushable Scatterplot</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
-        /* .dot {
-            fill: steelblue;
-            opacity: 0.7;
-        }
-
-        .selected {
-            fill: orange;
-        } */
-
         .brush .selection {
             fill: lightgray;
             fill-opacity: 0.3;
             stroke: #999;
+        }
+
+        #subCategorySelect {
+            height: 30px;
         }
     </style>
 </head>
@@ -28,31 +23,39 @@
         <div>
             <svg id="scatter_plot" width="700" height="500"></svg>
         </div>
-        <div style="margin-left: 20px;">
-            <table id="data-table" border="1">
-                <thead>
-                    <tr>
-                        <th>Sales</th>
-                        <th>Profit</th>
-                        <th>Category</th>
-                        <th>Sub Category</th>
-                        <th>Product Name</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+        <div style="display: flex; margin-left: 20px;">
+            <div id="selected-info">
+
+            </div>
+            <div style="margin-left: 20px;">
+                <table id="data-table" border="1">
+                    <thead>
+                        <tr>
+                            <th>Sales</th>
+                            <th>Profit</th>
+                            <th>Category</th>
+                            <th>Sub Category</th>
+                            <th>Product Name</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
     </div>
 </body>
 
 <script src="{{ url_for('static', filename='js/scatterplot.js') }}"></script>
 <script>
+    let originalData = []; // 全域儲存原始資料
 
     async function renderScatterplot() {
         fetch('/api/products_and_order_details')
             .then(response => response.json())
             .then(data => {
-                drawScatterplot(data);
+                originalData = data.data;  // 儲存原始資料
+                drawScatterplot(originalData);  // 初次畫圖
+                createSubCategorySelect(data.sub_category);
             })
             .catch(error => {
                 console.error('資料載入失敗:', error);

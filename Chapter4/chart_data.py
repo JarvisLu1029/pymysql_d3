@@ -36,7 +36,10 @@ def sql_query(query, params=None):
 
 
 def get_category_chart_data() -> list[dict[str, int]]:
-    # 取得所有 category 的資料
+    # 計算每個主類別的產品訂單數量
+    category_query = """
+
+    """
 
     """
     將資料整理成
@@ -48,8 +51,10 @@ def get_category_chart_data() -> list[dict[str, int]]:
     """
 
 
+    return ""
+
 def get_sub_category_chart_data(category):
-    # 取得特定 category 的 sub_category 資料
+    # 計算某個主類別，其子類別的產品訂單數量
     sub_category_query = """
 
     """
@@ -73,15 +78,20 @@ def get_products_and_order_details():
 
     """
     將資料整理成
-    data = [
-            { sales: 10, profit: 20, product_name: "A" },
-            { sales: 30, profit: 40, product_name: "B" },
-            { sales: 50, profit: 60, product_name: "C" },
-            { sales: 70, profit: 80, product_name: "D" },
-            { sales: 50, profit: 90, product_name: "C" },
-            { sales: 90, profit: 100, product_name: "E" }
-        ];
+    products_and_order_details_result = [
+        {'category': 'Furniture', 'sub_category': 'Bookcases', 'product_name': 'Bush Birmingham Collection Bookcase, Dark Cherry', 'sales': Decimal('825.17'), 'profit': Decimal('-14.29')}, 
+        {'category': 'Furniture', 'sub_category': 'Bookcases', 'product_name': 'Sauder Camden County Barrister Bookcase, Planked Cherry Finish', 'sales': Decimal('1064.62'), 'profit': Decimal('2.27')},
+        {'category': 'Furniture', 'sub_category': 'Bookcases', 'product_name': 'Sauder Inglewood Library Bookcases', 'sales': Decimal('2154.35'), 'profit': Decimal('14.44')}, 
+        {'category': 'Furniture', 'sub_category': 'Bookcases', 'product_name': "O'Sullivan 2-Shelf Heavy-Duty Bookcases", 'sales': Decimal('723.85'), 'profit': Decimal('-18.39')},      
+        {'category': 'Furniture', 'sub_category': 'Bookcases', 'product_name': 'Hon Metal Bookcases, Gray', 'sales': Decimal('851.76'), 'profit': Decimal('27.00')}
+    ];
     """
+
+
+
+    # 回傳 products_and_order_details_result 以及 所有的 子類別名稱
+    return ""
+
 
 def get_quantity_data():
     # 取得所有產品的銷售數量資料
@@ -113,3 +123,12 @@ def get_quantity_data():
     };
     """
 
+    result = {
+        "name": "Quantity",
+        "children": []
+    }
+
+
+
+
+    return result
