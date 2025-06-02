@@ -4,7 +4,7 @@ import configparser
 config = configparser.ConfigParser()
 config.read('../Chapter1/config.ini')
 
-def create_superstore(database):
+def create_superstore_tables(database):
     conn = pymysql.connect(
         host=config.get('DB', 'host'),
         user=config.get('DB', 'user'),
@@ -16,7 +16,7 @@ def create_superstore(database):
 
     # Create tables
     with conn.cursor() as cursor:
-        # Create a new table
+        # 建立 Customers
         sql = """
             CREATE TABLE IF NOT EXISTS Customers (
                 customer_id VARCHAR(20) PRIMARY KEY,
@@ -26,6 +26,7 @@ def create_superstore(database):
         """
         cursor.execute(sql)
 
+        # 建立 Orders
         sql = """
             CREATE TABLE IF NOT EXISTS Orders (
                 order_id VARCHAR(20) PRIMARY KEY,
@@ -38,6 +39,7 @@ def create_superstore(database):
         """
         cursor.execute(sql)
 
+        # 建立 Products
         sql = """
             CREATE TABLE IF NOT EXISTS Products (
                 product_id VARCHAR(20) PRIMARY KEY,
@@ -48,6 +50,7 @@ def create_superstore(database):
         """
         cursor.execute(sql)
 
+        # 建立 OrderDetails
         sql = """
             CREATE TABLE IF NOT EXISTS OrderDetails (
                 row_id INT PRIMARY KEY,

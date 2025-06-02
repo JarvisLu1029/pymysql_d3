@@ -36,7 +36,7 @@ def sql_query(query, params=None):
 
 
 def get_category_chart_data() -> list[dict[str, int]]:
-    # 取得所有 category 的資料
+    # 計算每個主類別的產品訂單數量
     category_query = """
         SELECT P.category, COUNT(*) as count FROM Products as P 
         JOIN superstore.OrderDetails as O ON P.product_id = O.product_id
@@ -58,11 +58,21 @@ def get_category_chart_data() -> list[dict[str, int]]:
 
 
 def get_sub_category_chart_data(category):
+    # 計算某個主類別，其子類別的產品訂單數量
     sub_category_query = """
         SELECT P.sub_category, COUNT(*) as count FROM Products as P 
         JOIN superstore.OrderDetails as O ON P.product_id = O.product_id
         WHERE P.category = %s
         GROUP BY sub_category; 
+    """
+
+    """
+    將資料整理成
+    [
+        {'label': 'sub_category 1', 'value': 100},
+        {'label': 'sub_category 2', 'value': 200},
+        ...
+    ]
     """
 
     sub_category_count_result = sql_query(sub_category_query, (category,))
@@ -73,6 +83,7 @@ def get_sub_category_chart_data(category):
 
 
 def get_products_and_order_details():
+    # 取得 products 和 order details 的資料，並計算每個產品的銷售總額和總利潤
     products_and_order_details_query = """
     SELECT category, sub_category, product_name, SUM(sales) AS sales, SUM(profit) AS profit FROM OrderDetails AS O
     JOIN superstore.Products AS P ON O.product_id = P.product_id
@@ -81,25 +92,26 @@ def get_products_and_order_details():
 
     """
     將資料整理成
-    data = [
-            { sales: 10, profit: 20, product_name: "A" },
-            { sales: 30, profit: 40, product_name: "B" },
-            { sales: 50, profit: 60, product_name: "C" },
-            { sales: 70, profit: 80, product_name: "D" },
-            { sales: 50, profit: 90, product_name: "C" },
-            { sales: 90, profit: 100, product_name: "E" }
-        ];
+    products_and_order_details_result = [
+        {'category': 'Furniture', 'sub_category': 'Bookcases', 'product_name': 'Bush Birmingham Collection Bookcase, Dark Cherry', 'sales': Decimal('825.17'), 'profit': Decimal('-14.29')}, 
+        {'category': 'Furniture', 'sub_category': 'Bookcases', 'product_name': 'Sauder Camden County Barrister Bookcase, Planked Cherry Finish', 'sales': Decimal('1064.62'), 'profit': Decimal('2.27')},
+        {'category': 'Furniture', 'sub_category': 'Bookcases', 'product_name': 'Sauder Inglewood Library Bookcases', 'sales': Decimal('2154.35'), 'profit': Decimal('14.44')}, 
+        {'category': 'Furniture', 'sub_category': 'Bookcases', 'product_name': "O'Sullivan 2-Shelf Heavy-Duty Bookcases", 'sales': Decimal('723.85'), 'profit': Decimal('-18.39')},      
+        {'category': 'Furniture', 'sub_category': 'Bookcases', 'product_name': 'Hon Metal Bookcases, Gray', 'sales': Decimal('851.76'), 'profit': Decimal('27.00')}
+    ];
     """
 
     products_and_order_details_result = sql_query(products_and_order_details_query)
 
-    products_and_order_details_result = [{**i, 'profit': round(i['profit']/i['sales'], 2)*100} for i in products_and_order_details_result]
+    products_and_order_details_result = [{**i, 'profit': round(i['profit']/i['sales']*100, 2)} for i in products_and_order_details_result]
     sub_category = {i['sub_category'] for i in products_and_order_details_result}
 
+    # 回傳 products_and_order_details_result 以及 所有的 子類別名稱
     return products_and_order_details_result, sub_category
 
 
 def get_quantity_data():
+    # 計算每個主類別和子類別的產品訂單數量
     quantity_query = """
         SELECT 
             P.category,
