@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html class="light" lang="zh-Hant">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>InsightEngine | 產品資料分析儀表板</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#6cd3f7",
+                        "surface-container-low": "#f2f4f6",
+                        "on-secondary-fixed": "#0d1c2e",
+                        "secondary": "#515f74",
+                        "on-primary-fixed": "#001f28",
+                        "on-surface": "#191c1e",
+                        "surface-container-high": "#e6e8ea",
+                        "tertiary-container": "#008378",
+                        "primary-fixed-dim": "#6cd3f7",
+                        "on-tertiary": "#ffffff",
+                        "surface-bright": "#f7f9fb",
+                        "surface-container": "#eceef0",
+                        "on-tertiary-fixed": "#00201d",
+                        "surface-container-highest": "#e0e3e5",
+                        "background": "#f7f9fb",
+                        "outline-variant": "#bdc8ce",
+                        "tertiary-fixed-dim": "#6bd8cb",
+                        "on-secondary-fixed-variant": "#3a485b",
+                        "secondary-fixed": "#d5e3fc",
+                        "on-primary-container": "#fafdff",
+                        "on-primary": "#ffffff",
+                        "tertiary": "#00685f",
+                        "on-tertiary-container": "#f4fffc",
+                        "on-error": "#ffffff",
+                        "primary-fixed": "#b7eaff",
+                        "on-secondary-container": "#57657a",
+                        "error": "#ba1a1a",
+                        "on-surface-variant": "#3e484d",
+                        "primary-container": "#007f9d",
+                        "surface-dim": "#d8dadc",
+                        "on-tertiary-fixed-variant": "#005049",
+                        "outline": "#6e797e",
+                        "inverse-surface": "#2d3133",
+                        "on-primary-fixed-variant": "#004e61",
+                        "surface-variant": "#e0e3e5",
+                        "inverse-on-surface": "#eff1f3",
+                        "tertiary-fixed": "#89f5e7",
+                        "secondary-fixed-dim": "#b9c7df",
+                        "surface-tint": "#006780",
+                        "on-error-container": "#93000a",
+                        "on-secondary": "#ffffff",
+                        "surface": "#f7f9fb",
+                        "on-background": "#191c1e",
+                        "secondary-container": "#d5e3fc",
+                        "primary": "#00647c",
+                        "error-container": "#ffdad6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        h1,
+        h2,
+        h3,
+        .headline-font {
+            font-family: 'Manrope', sans-serif;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        /* D3 Chart Styles */
+        #d3-tooltip {
+            position: fixed;
+            background: rgba(25, 28, 30, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            max-width: 320px;
+            line-height: 1.5;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            box-shadow: 0 10px 40px rgba(25, 28, 30, 0.25);
+            z-index: 9999;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        #d3-tooltip .tooltip-image {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-height: 140px;
+            object-fit: contain;
+            margin-bottom: 8px;
+            border-radius: 8px;
+        }
+
+        #d3-tooltip strong {
+            display: block;
+            margin-top: 4px;
+            color: #6cd3f7;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* D3 Chart text styles */
+        .d3-chart-container text {
+            font-family: 'Inter', sans-serif;
+            fill: #3e484d;
+        }
+
+        .d3-chart-container .axis-label {
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .d3-chart-container .tick text {
+            font-size: 10px;
+            font-weight: 500;
+            fill: #6e797e;
+        }
+
+        .d3-chart-container .tick line {
+            stroke: #bdc8ce;
+            stroke-opacity: 0.3;
+        }
+
+        .d3-chart-container .domain {
+            stroke: #bdc8ce;
+            stroke-opacity: 0.4;
+        }
+
+        /* Loading spinner */
+        .chart-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+            color: #6e797e;
+            gap: 8px;
+        }
+
+        .chart-loading .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e0e3e5;
+            border-top-color: #00647c;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Bar hover */
+        .bar-rect {
+            transition: opacity 0.15s ease;
+            cursor: pointer;
+        }
+
+        .bar-rect:hover {
+            opacity: 0.8;
+        }
+
+        /* Scatter dot */
+        .scatter-dot {
+            cursor: pointer;
+            transition: r 0.15s ease, stroke-width 0.15s ease;
+        }
+    </style>
+</head>
+
+<body class="bg-surface text-on-surface flex min-h-screen">
+
+    <!-- D3 Tooltip -->
+    <div id="d3-tooltip"></div>
+
+    <!-- SideNavBar -->
+    <aside
+        class="hidden md:flex flex-col h-screen w-64 bg-slate-100 border-r-0 fixed left-0 top-0 py-8 z-20 border-r-2 border-slate-200">
+        <div class="px-6 mb-10">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+                    <span class="material-symbols-outlined text-on-primary"
+                        style="font-variation-settings: 'FILL' 1;">analytics</span>
+                </div>
+                <div>
+                    <div class="text-lg font-black text-cyan-800 leading-tight">InsightEngine</div>
+                    <div class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">產品分析平台</div>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 space-y-1">
+            <a class="flex items-center gap-4 px-6 py-3 text-cyan-800 font-bold border-r-4 border-cyan-600 transition-all"
+                href="#">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span class="font-manrope label-md font-medium">總覽</span>
+            </a>
+            <!-- <a class="flex items-center gap-4 px-6 py-3 text-slate-600 hover:text-cyan-600 transition-all" href="#">
+            <span class="material-symbols-outlined">payments</span>
+            <span class="font-manrope label-md font-medium">價格分析</span>
+            </a>
+            <a class="flex items-center gap-4 px-6 py-3 text-slate-600 hover:text-cyan-600 transition-all" href="#">
+                <span class="material-symbols-outlined">inventory_2</span>
+                <span class="font-manrope label-md font-medium">商品庫存</span>
+            </a>
+            <a class="flex items-center gap-4 px-6 py-3 text-slate-600 hover:text-cyan-600 transition-all" href="#">
+                <span class="material-symbols-outlined">store</span>
+                <span class="font-manrope label-md font-medium">商店管理</span>
+            </a>
+            <a class="flex items-center gap-4 px-6 py-3 text-slate-600 hover:text-cyan-600 transition-all" href="#">
+                <span class="material-symbols-outlined">analytics</span>
+                <span class="font-manrope label-md font-medium">報表匯出</span>
+            </a> -->
+        </nav>
+        <!-- <div class="px-6 pt-4 mt-4 border-t border-outline-variant/10">
+            <button
+                class="w-full bg-primary text-on-primary py-3 px-4 rounded-xl font-bold text-sm shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
+                匯出報表
+            </button>
+        </div>
+        <div class="mt-auto px-6 space-y-1">
+            <a class="flex items-center gap-4 py-3 text-slate-600 hover:text-cyan-600 transition-all" href="#">
+                <span class="material-symbols-outlined">help</span>
+                <span class="font-manrope label-md font-medium">支援</span>
+            </a>
+        </div> -->
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 md:ml-64 flex flex-col min-h-screen relative bg-surface-container-low">
+        <!-- TopNavBar -->
+        <header class="bg-slate-50 sticky top-0 z-10 w-full flex justify-between items-center px-6 py-3 border-b-0">
+            <div class="flex items-center gap-8 flex-1">
+                <h1 class="font-manrope text-xl font-bold text-cyan-900 tracking-tight">產品資料視覺化儀表板</h1>
+                <div class="relative max-w-md w-full flex items-center gap-2">
+                    <div class="relative flex-1">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+                        <input id="search-input"
+                            class="w-full bg-slate-100 border-none rounded-full py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface-variant/60"
+                            placeholder="輸入產品關鍵字查詢，例如：ROG滑鼠" type="text" />
+                    </div>
+                    <button id="search-btn"
+                        class="bg-primary text-on-primary px-5 py-2 rounded-full font-bold text-sm hover:opacity-90 active:scale-95 transition-all flex items-center gap-1 whitespace-nowrap">
+                        <span class="material-symbols-outlined text-base">search</span> 查詢
+                    </button>
+                    <button id="clear-search-btn"
+                        class="bg-surface-container text-on-surface-variant px-4 py-2 rounded-full font-bold text-sm hover:bg-surface-container-high active:scale-95 transition-all whitespace-nowrap"
+                        style="display:none;">
+                        清除
+                    </button>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="p-2 text-slate-500 hover:bg-slate-200/50 rounded-full transition-colors">
+                    <span class="material-symbols-outlined">notifications</span>
+                </button>
+                <button class="p-2 text-slate-500 hover:bg-slate-200/50 rounded-full transition-colors">
+                    <span class="material-symbols-outlined">settings</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="p-8 space-y-8">
+
+            <!-- Top Stats: Four Summary Cards (dynamically populated) -->
+            <div id="stats-cards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Stat Card 1: Total Products -->
+                <div class="bg-surface-container-lowest p-6 rounded-xl transition-all hover:translate-y-[-4px]">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                            <span class="material-symbols-outlined">inventory_2</span>
+                        </div>
+                    </div>
+                    <div class="text-on-surface-variant text-sm font-medium">總產品數</div>
+                    <div id="stat-total-products" class="font-manrope text-3xl font-extrabold text-on-surface mt-1">—
+                    </div>
+                </div>
+                <!-- Stat Card 2: Average Price -->
+                <div class="bg-surface-container-lowest p-6 rounded-xl transition-all hover:translate-y-[-4px]">
+                    <div class="flex items-center justify-between mb-4">
+                        <div
+                            class="w-12 h-12 bg-secondary-container rounded-xl flex items-center justify-center text-primary">
+                            <span class="material-symbols-outlined">payments</span>
+                        </div>
+                    </div>
+                    <div class="text-on-surface-variant text-sm font-medium">平均價格</div>
+                    <div id="stat-avg-price" class="font-manrope text-3xl font-extrabold text-on-surface mt-1">—</div>
+                </div>
+                <!-- Stat Card 3: Top Store -->
+                <div class="bg-primary p-6 rounded-xl transition-all hover:translate-y-[-4px] text-on-primary">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                            <span class="material-symbols-outlined">store</span>
+                        </div>
+                        <span class="text-white/80 font-bold text-sm">最大來源</span>
+                    </div>
+                    <div class="text-white/70 text-sm font-medium">商品最多的商店</div>
+                    <div id="stat-top-store" class="font-manrope text-3xl font-extrabold mt-1">—</div>
+                </div>
+                <!-- Stat Card 4: Price Range -->
+                <div class="bg-surface-container-lowest p-6 rounded-xl transition-all hover:translate-y-[-4px]">
+                    <div class="flex items-center justify-between mb-4">
+                        <div
+                            class="w-12 h-12 bg-tertiary-fixed rounded-xl flex items-center justify-center text-tertiary">
+                            <span class="material-symbols-outlined">straighten</span>
+                        </div>
+                    </div>
+                    <div class="text-on-surface-variant text-sm font-medium">價格範圍</div>
+                    <div id="stat-price-range" class="font-manrope text-3xl font-extrabold text-on-surface mt-1">—</div>
+                </div>
+            </div>
+
+            <!-- Row 1: Donut Chart + Bar Chart -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Source Distribution (D3 Donut Chart) -->
+                <div class="lg:col-span-1 bg-surface-container-lowest p-6 rounded-xl">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="font-manrope headline-sm font-bold text-on-surface">各商店產品占比</h3>
+                        <span class="material-symbols-outlined text-on-surface-variant">donut_large</span>
+                    </div>
+                    <div id="chart-store-ratio" class="d3-chart-container flex flex-col items-center">
+                        <div class="chart-loading">
+                            <div class="spinner"></div>
+                            <span class="text-xs font-medium">載入中...</span>
+                        </div>
+                    </div>
+                    <!-- Legend will be appended here dynamically -->
+                    <div id="donut-legend" class="mt-6 space-y-3"></div>
+                </div>
+
+                <!-- Price Distribution (D3 Bar Chart) - full width within 2/3 -->
+                <div class="lg:col-span-2 bg-surface-container-lowest p-6 rounded-xl">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="font-manrope headline-sm font-bold text-on-surface">價格區間筆數</h3>
+                        <span class="material-symbols-outlined text-on-surface-variant">bar_chart</span>
+                    </div>
+                    <div id="chart-price-range" class="d3-chart-container w-full">
+                        <div class="chart-loading">
+                            <div class="spinner"></div>
+                            <span class="text-xs font-medium">載入中...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scatter Plot - full width -->
+            <div class="space-y-6">
+                <div class="bg-surface-container-lowest p-8 rounded-xl relative overflow-visible">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h3 class="font-manrope headline-sm font-bold text-on-surface">產品價格與商店分佈</h3>
+                            <p class="text-sm text-on-surface-variant mt-1">拖曳框選圓點可篩選產品明細，點擊圓點可開啟連結，懸停可查看詳情</p>
+                        </div>
+                        <div id="scatter-legend" class="flex items-center gap-6">
+                            <!-- D3 will populate this -->
+                        </div>
+                    </div>
+                    <div id="chart-scatter" class="d3-chart-container w-full">
+                        <div class="chart-loading">
+                            <div class="spinner"></div>
+                            <span class="text-xs font-medium">載入中...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Data Table (hidden until brush selection) -->
+                <div id="product-table-card"
+                    class="bg-surface-container-lowest p-8 rounded-xl border border-primary/5 shadow-sm"
+                    style="display:none;">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-primary/10 rounded-lg">
+                                <span class="material-symbols-outlined text-primary">analytics</span>
+                            </div>
+                            <div>
+                                <h3 class="font-manrope headline-sm font-bold text-on-surface">產品資料明細</h3>
+                                <p id="table-subtitle" class="text-xs text-on-surface-variant font-medium">
+                                    框選散點圖中的資料點以顯示明細</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <span id="table-count" class="text-xs font-bold text-on-surface-variant"></span>
+                            <button id="clear-selection-btn"
+                                class="px-3 py-1.5 bg-surface-container text-on-surface-variant text-xs font-bold rounded-lg hover:bg-surface-container-high transition-colors flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">close</span> 清除選取
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto max-h-[480px] overflow-y-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="sticky top-0 bg-surface-container-lowest z-[1]">
+                                <tr class="border-b border-outline-variant/20">
+                                    <th class="py-4 px-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest cursor-pointer hover:text-primary select-none transition-colors"
+                                        data-sort="title" onclick="sortTable('title')">
+                                        <span class="inline-flex items-center gap-1">產品名稱 <span id="sort-icon-title"
+                                                class="material-symbols-outlined text-xs opacity-40">unfold_more</span></span>
+                                    </th>
+                                    <th class="py-4 px-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest cursor-pointer hover:text-primary select-none transition-colors"
+                                        data-sort="store" onclick="sortTable('store')">
+                                        <span class="inline-flex items-center gap-1">商店 <span id="sort-icon-store"
+                                                class="material-symbols-outlined text-xs opacity-40">unfold_more</span></span>
+                                    </th>
+                                    <th class="py-4 px-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest cursor-pointer hover:text-primary select-none transition-colors"
+                                        data-sort="price" onclick="sortTable('price')">
+                                        <span class="inline-flex items-center gap-1">價格 <span id="sort-icon-price"
+                                                class="material-symbols-outlined text-xs opacity-40">unfold_more</span></span>
+                                    </th>
+                                    <th
+                                        class="py-4 px-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest text-right">
+                                        操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="product-table-body" class="divide-y divide-outline-variant/10">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Row: Average Price per Store -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-surface-container-lowest p-6 rounded-xl">
+                    <div class="flex items-center justify-between mb-8">
+                        <h3 class="font-manrope headline-sm font-bold text-on-surface">各商店平均價格</h3>
+                    </div>
+                    <div id="avg-price-bars" class="space-y-6">
+                        <div class="chart-loading">
+                            <div class="spinner"></div>
+                            <span class="text-xs font-medium">載入中...</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Summary Insights -->
+                <div class="bg-surface-container-lowest p-6 rounded-xl">
+                    <div class="flex items-center justify-between mb-8">
+                        <h3 class="font-manrope headline-sm font-bold text-on-surface">資料摘要</h3>
+                    </div>
+                    <div id="summary-insights" class="grid grid-cols-2 gap-4">
+                        <div class="chart-loading col-span-2">
+                            <div class="spinner"></div>
+                            <span class="text-xs font-medium">載入中...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // ==========================================
+        // Color Palette (matching DESIGN.md tokens)
+        // ==========================================
+        const COLORS = {
+            primary: '#00647c',
+            primaryContainer: '#007f9d',
+            tertiary: '#00685f',
+            tertiaryContainer: '#008378',
+            secondary: '#515f74',
+            error: '#ba1a1a',
+            surface: '#f2f4f6',
+            outline: '#6e797e',
+        };
+
+        // A richer D3 color scale using design-system-friendly hues
+        const COLOR_PALETTE = [
+            '#00647c', '#008378', '#515f74', '#007f9d',
+            '#6cd3f7', '#6bd8cb', '#b9c7df', '#89f5e7',
+            '#3e484d', '#ba1a1a'
+        ];
+        const COLOR_SCALE = d3.scaleOrdinal(COLOR_PALETTE);
+
+        const MARGIN = { top: 20, right: 30, bottom: 60, left: 70 };
+
+        // ==========================================
+        // 1. Donut Chart — 各商店產品占比
+        // ==========================================
+        function drawStoreRatioChart(data) {
+            const container = d3.select('#chart-store-ratio');
+            container.selectAll('.chart-loading').remove();
+
+            const width = 260;
+            const height = 260;
+            const radius = Math.min(width, height) / 2;
+
+            const svg = container.append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', `translate(${width / 2}, ${height / 2})`);
+
+            const pie = d3.pie().value(d => d.count).sort(null);
+
+            const arc = d3.arc()
+                .innerRadius(radius * 0.55)
+                .outerRadius(radius * 0.85);
+
+            const hoverArc = d3.arc()
+                .innerRadius(radius * 0.52)
+                .outerRadius(radius * 0.9);
+
+            const totalCount = d3.sum(data, d => d.count);
+
+            // Center label
+            svg.append('text')
+                .attr('text-anchor', 'middle')
+                .attr('dy', '-0.2em')
+                .style('font-family', 'Manrope')
+                .style('font-size', '28px')
+                .style('font-weight', '800')
+                .style('fill', '#191c1e')
+                .text(totalCount);
+
+            svg.append('text')
+                .attr('text-anchor', 'middle')
+                .attr('dy', '1.4em')
+                .style('font-size', '10px')
+                .style('font-weight', '700')
+                .style('fill', '#6e797e')
+                .style('text-transform', 'uppercase')
+                .style('letter-spacing', '2px')
+                .text('總計');
+
+            const arcs = svg.selectAll('arc')
+                .data(pie(data))
+                .enter()
+                .append('g')
+                .attr('class', 'arc');
+
+            arcs.append('path')
+                .attr('d', arc)
+                .attr('fill', (d, i) => COLOR_SCALE(d.data.store))
+                .attr('stroke', 'white')
+                .style('stroke-width', '3px')
+                .style('cursor', 'pointer')
+                .on('mouseover', function (event, d) {
+                    d3.select(this)
+                        .transition().duration(200)
+                        .attr('d', hoverArc);
+                })
+                .on('mouseout', function (event, d) {
+                    d3.select(this)
+                        .transition().duration(200)
+                        .attr('d', arc);
+                });
+
+            // Legend
+            const legend = d3.select('#donut-legend');
+            data.forEach((d, i) => {
+                const pct = ((d.count / totalCount) * 100).toFixed(1);
+                legend.append('div')
+                    .attr('class', 'flex items-center justify-between')
+                    .html(`
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full" style="background:${COLOR_SCALE(d.store)}"></span>
+                        <span class="text-sm font-medium text-on-surface-variant">${d.store}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm font-bold">${d.count}</span>
+                        <span class="text-xs text-on-surface-variant">(${pct}%)</span>
+                    </div>
+                `);
+            });
+        }
+
+        // ==========================================
+        // 2. Bar Chart — 價格區間筆數
+        // ==========================================
+        function drawPriceRangeChart(data) {
+            const container = d3.select('#chart-price-range');
+            container.selectAll('.chart-loading').remove();
+
+            const containerWidth = container.node().getBoundingClientRect().width;
+            const width = containerWidth - MARGIN.left - MARGIN.right;
+            const height = 300 - MARGIN.top - MARGIN.bottom;
+
+            const svg = container.append('svg')
+                .attr('width', width + MARGIN.left + MARGIN.right)
+                .attr('height', height + MARGIN.top + MARGIN.bottom)
+                .append('g')
+                .attr('transform', `translate(${MARGIN.left}, ${MARGIN.top})`);
+
+            // Filter out zero-count ranges for cleaner display
+            const filteredData = data.filter(d => d.count > 0);
+
+            const x = d3.scaleBand()
+                .range([0, width])
+                .domain(filteredData.map(d => d.range))
+                .padding(0.25);
+
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(filteredData, d => d.count) * 1.15])
+                .range([height, 0]);
+
+            // Grid lines
+            svg.append('g')
+                .attr('class', 'grid')
+                .call(d3.axisLeft(y).tickSize(-width).tickFormat(''))
+                .selectAll('line')
+                .style('stroke', '#e0e3e5')
+                .style('stroke-opacity', 0.5);
+            svg.select('.grid .domain').remove();
+
+            // X axis
+            svg.append('g')
+                .attr('transform', `translate(0, ${height})`)
+                .call(d3.axisBottom(x))
+                .selectAll('text')
+                .attr('transform', 'translate(-10,0)rotate(-40)')
+                .style('text-anchor', 'end');
+
+            // Y axis
+            svg.append('g')
+                .call(d3.axisLeft(y).tickFormat(d3.format('d')));
+
+            // Y axis label
+            svg.append('text')
+                .attr('transform', 'rotate(-90)')
+                .attr('y', 0 - MARGIN.left + 15)
+                .attr('x', 0 - (height / 2))
+                .attr('dy', '1em')
+                .style('text-anchor', 'middle')
+                .style('font-size', '11px')
+                .style('font-weight', '600')
+                .style('fill', '#3e484d')
+                .text('產品筆數');
+
+            // Gradient definition
+            const gradient = svg.append('defs')
+                .append('linearGradient')
+                .attr('id', 'barGradient')
+                .attr('x1', '0%').attr('y1', '0%')
+                .attr('x2', '0%').attr('y2', '100%');
+            gradient.append('stop').attr('offset', '0%').attr('stop-color', COLORS.primary);
+            gradient.append('stop').attr('offset', '100%').attr('stop-color', COLORS.primaryContainer);
+
+            // Bars
+            svg.selectAll('.bar-rect')
+                .data(filteredData)
+                .enter()
+                .append('rect')
+                .attr('class', 'bar-rect')
+                .attr('x', d => x(d.range))
+                .attr('y', height) // start from bottom for animation
+                .attr('width', x.bandwidth())
+                .attr('height', 0)
+                .attr('fill', 'url(#barGradient)')
+                .attr('rx', 4)
+                .attr('ry', 4)
+                .transition().duration(600).delay((d, i) => i * 80)
+                .attr('y', d => y(d.count))
+                .attr('height', d => height - y(d.count));
+
+            // Value labels on top
+            svg.selectAll('.bar-label')
+                .data(filteredData)
+                .enter()
+                .append('text')
+                .attr('x', d => x(d.range) + x.bandwidth() / 2)
+                .attr('y', d => y(d.count) - 6)
+                .attr('text-anchor', 'middle')
+                .style('font-size', '10px')
+                .style('font-weight', '700')
+                .style('fill', '#3e484d')
+                .style('opacity', 0)
+                .text(d => d.count)
+                .transition().duration(600).delay((d, i) => i * 80 + 300)
+                .style('opacity', 1);
+        }
+
+        // ==========================================
+        // 3. Scatter Plot — 產品價格與商店分佈 (with Brush)
+        // ==========================================
+        function drawScatterChart(data) {
+            const container = d3.select('#chart-scatter');
+            container.selectAll('.chart-loading').remove();
+
+            const containerWidth = container.node().getBoundingClientRect().width;
+            const legendWidth = 150;
+            const width = containerWidth - MARGIN.left - MARGIN.right - legendWidth;
+            const height = 420 - MARGIN.top - MARGIN.bottom;
+
+            const tooltip = d3.select('#d3-tooltip');
+
+            const svgRoot = container.append('svg')
+                .attr('width', containerWidth)
+                .attr('height', height + MARGIN.top + MARGIN.bottom);
+
+            const svg = svgRoot.append('g')
+                .attr('transform', `translate(${MARGIN.left + 20}, ${MARGIN.top})`);
+
+            // X axis: price
+            const x = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d.price) * 1.05])
+                .range([0, width]);
+
+            // Grid lines
+            svg.append('g')
+                .attr('class', 'grid')
+                .attr('transform', `translate(0, ${height})`)
+                .call(d3.axisBottom(x).tickSize(-height).tickFormat(''))
+                .selectAll('line')
+                .style('stroke', '#e0e3e5')
+                .style('stroke-opacity', 0.3);
+            svg.selectAll('.grid .domain').remove();
+
+            svg.append('g')
+                .attr('transform', `translate(0, ${height})`)
+                .call(d3.axisBottom(x).ticks(8).tickFormat(d => `NT$${d.toLocaleString()}`))
+                .selectAll('text')
+                .style('font-size', '10px');
+
+            // X label
+            svg.append('text')
+                .attr('transform', `translate(${width / 2}, ${height + 45})`)
+                .style('text-anchor', 'middle')
+                .style('font-size', '11px')
+                .style('font-weight', '600')
+                .style('fill', '#3e484d')
+                .text('價格 (NTD)');
+
+            // Y axis: store
+            const stores = Array.from(new Set(data.map(d => d.store))).sort();
+            const y = d3.scalePoint()
+                .domain(stores)
+                .range([height, 0])
+                .padding(0.5);
+
+            svg.append('g')
+                .call(d3.axisLeft(y))
+                .selectAll('text')
+                .style('font-size', '11px')
+                .style('font-weight', '600');
+
+            // Dots (brush-only, no click/hover events on individual dots)
+            const dots = svg.selectAll('.scatter-dot')
+                .data(data)
+                .enter()
+                .append('circle')
+                .attr('class', 'scatter-dot')
+                .attr('cx', d => x(d.price))
+                .attr('cy', d => y(d.store))
+                .attr('r', 0)
+                .style('fill', d => COLOR_SCALE(d.store))
+                .style('opacity', 0.75);
+
+            // Animate dots in
+            dots.transition().duration(500).delay((d, i) => Math.min(i * 5, 1000))
+                .attr('r', 6);
+
+            // ---- D3 Brush for Selection ----
+            const brush = d3.brush()
+                .extent([[0, 0], [width, height]])
+                .on('start brush', function (event) {
+                    if (!event.selection) return;
+                    const [[x0, y0], [x1, y1]] = event.selection;
+
+                    // Highlight selected dots
+                    dots.style('opacity', d => {
+                        const cx = x(d.price);
+                        const cy = y(d.store);
+                        const isSelected = cx >= x0 && cx <= x1 && cy >= y0 && cy <= y1;
+                        return isSelected ? 1 : 0.15;
+                    });
+                })
+                .on('end', function (event) {
+                    if (!event.selection) {
+                        // If brush cleared, reset dots and hide table
+                        dots.style('opacity', 0.75);
+                        document.getElementById('product-table-card').style.display = 'none';
+                        return;
+                    }
+                    const [[x0, y0], [x1, y1]] = event.selection;
+
+                    // Find selected data
+                    const selected = data.filter(d => {
+                        const cx = x(d.price);
+                        const cy = y(d.store);
+                        return cx >= x0 && cx <= x1 && cy >= y0 && cy <= y1;
+                    });
+
+                    // Show table with selected data
+                    if (selected.length > 0) {
+                        populateTable(selected);
+                        const tableCard = document.getElementById('product-table-card');
+                        tableCard.style.display = 'block';
+                        // Smooth scroll to table
+                        tableCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    } else {
+                        document.getElementById('product-table-card').style.display = 'none';
+                    }
+                });
+
+            // Append brush layer
+            const brushGroup = svg.append('g')
+                .attr('class', 'brush')
+                .call(brush);
+
+            // Style the brush overlay
+            brushGroup.select('.overlay')
+                .style('cursor', 'crosshair');
+            brushGroup.select('.selection')
+                .style('fill', 'rgba(0, 100, 124, 0.08)')
+                .style('stroke', '#00647c')
+                .style('stroke-dasharray', '4,3')
+                .style('stroke-width', '1.5px');
+
+            // Clear selection button
+            document.getElementById('clear-selection-btn').addEventListener('click', function () {
+                brushGroup.call(brush.move, null);
+                dots.style('opacity', 0.75);
+                document.getElementById('product-table-card').style.display = 'none';
+            });
+
+            // Legend inside SVG
+            const legend = svg.selectAll('.legend')
+                .data(stores)
+                .enter().append('g')
+                .attr('class', 'legend')
+                .attr('transform', (d, i) => `translate(${width + 60}, ${i * 24})`);
+
+            legend.append('rect')
+                .attr('width', 12)
+                .attr('height', 12)
+                .attr('rx', 3)
+                .style('fill', d => COLOR_SCALE(d));
+
+            legend.append('text')
+                .attr('x', 18)
+                .attr('y', 10)
+                .style('font-size', '11px')
+                .style('font-weight', '600')
+                .text(d => d);
+        }
+
+        // ==========================================
+        // Populate Stats Cards
+        // ==========================================
+        function populateStats(storeData, scatterData) {
+            // Total products
+            const totalProducts = d3.sum(storeData, d => d.count);
+            document.getElementById('stat-total-products').textContent = totalProducts.toLocaleString();
+
+            // Average price
+            if (scatterData.length > 0) {
+                const avgPrice = Math.round(d3.mean(scatterData, d => d.price));
+                document.getElementById('stat-avg-price').textContent = `NT$${avgPrice.toLocaleString()}`;
+            }
+
+            // Top store
+            const topStore = storeData.reduce((a, b) => a.count > b.count ? a : b);
+            document.getElementById('stat-top-store').textContent = topStore.store;
+
+            // Price range
+            if (scatterData.length > 0) {
+                const minPrice = d3.min(scatterData, d => d.price);
+                const maxPrice = d3.max(scatterData, d => d.price);
+                document.getElementById('stat-price-range').textContent =
+                    `$${minPrice.toLocaleString()} - $${maxPrice.toLocaleString()}`;
+            }
+        }
+
+        // ==========================================
+        // Populate Product Table (with sorting)
+        // ==========================================
+        let currentTableData = [];
+        let currentSortField = null;
+        let currentSortDir = 'asc'; // 'asc' or 'desc'
+
+        function sortTable(field) {
+            if (currentTableData.length === 0) return;
+
+            // Toggle direction if same field, otherwise default to asc
+            if (currentSortField === field) {
+                currentSortDir = currentSortDir === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSortField = field;
+                currentSortDir = 'asc';
+            }
+
+            // Sort data
+            const sorted = [...currentTableData].sort((a, b) => {
+                let valA, valB;
+                if (field === 'price') {
+                    valA = a.price;
+                    valB = b.price;
+                } else if (field === 'store') {
+                    valA = a.store.toLowerCase();
+                    valB = b.store.toLowerCase();
+                } else {
+                    valA = a.title.toLowerCase();
+                    valB = b.title.toLowerCase();
+                }
+                if (valA < valB) return currentSortDir === 'asc' ? -1 : 1;
+                if (valA > valB) return currentSortDir === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            // Update sort icons
+            ['title', 'store', 'price'].forEach(f => {
+                const icon = document.getElementById(`sort-icon-${f}`);
+                if (f === field) {
+                    icon.textContent = currentSortDir === 'asc' ? 'arrow_upward' : 'arrow_downward';
+                    icon.style.opacity = '1';
+                } else {
+                    icon.textContent = 'unfold_more';
+                    icon.style.opacity = '0.4';
+                }
+            });
+
+            renderTableRows(sorted);
+        }
+
+        function populateTable(data) {
+            currentTableData = data;
+            currentSortField = null;
+            currentSortDir = 'asc';
+
+            // Reset sort icons
+            ['title', 'store', 'price'].forEach(f => {
+                const icon = document.getElementById(`sort-icon-${f}`);
+                if (icon) {
+                    icon.textContent = 'unfold_more';
+                    icon.style.opacity = '0.4';
+                }
+            });
+
+            const countEl = document.getElementById('table-count');
+            const subtitleEl = document.getElementById('table-subtitle');
+            countEl.textContent = `已選取 ${data.length} 筆`;
+            subtitleEl.textContent = `已從散點圖中框選 ${data.length} 筆產品資料`;
+
+            if (data.length === 0) {
+                document.getElementById('product-table-body').innerHTML = '<tr><td colspan="4" class="py-8 text-center text-on-surface-variant text-sm">沒有資料</td></tr>';
+                return;
+            }
+
+            renderTableRows(data);
+        }
+
+        function renderTableRows(data) {
+            const tbody = document.getElementById('product-table-body');
+            tbody.innerHTML = data.map(d => `
+            <tr class="hover:bg-primary/5 transition-colors cursor-pointer group" onclick="window.open('${d.link}', '_blank')">
+                <td class="py-3 px-4">
+                    <div class="flex items-center gap-3">
+                        ${d.img_url
+                    ? `<div class="w-10 h-10 rounded bg-slate-100 overflow-hidden flex-shrink-0">
+                                   <img alt="product" class="w-full h-full object-cover" src="${d.img_url}" loading="lazy"/>
+                               </div>`
+                    : `<div class="w-10 h-10 rounded bg-slate-100 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                                   <span class="material-symbols-outlined text-slate-400">shopping_bag</span>
+                               </div>`
+                }
+                        <div class="min-w-0">
+                            <div class="text-sm font-bold text-on-surface leading-tight truncate max-w-[350px]">${d.title}</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="py-3 px-4">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full" style="background:${COLOR_SCALE(d.store)}"></span>
+                        <span class="text-xs font-semibold text-slate-700">${d.store}</span>
+                    </div>
+                </td>
+                <td class="py-3 px-4">
+                    <div class="text-sm font-black text-on-surface">NT$${d.price.toLocaleString()}</div>
+                </td>
+                <td class="py-3 px-4 text-right">
+                    <a href="${d.link}" target="_blank" class="text-xs font-bold text-primary hover:text-primary-container transition-colors" onclick="event.stopPropagation()">
+                        前往商品 →
+                    </a>
+                </td>
+            </tr>
+        `).join('');
+        }
+
+        // ==========================================
+        // Populate Average Price Bars + Summary
+        // ==========================================
+        function populateAvgPriceBars(scatterData, storeData) {
+            // Calculate avg price per store
+            const storeGroups = d3.group(scatterData, d => d.store);
+            const avgPrices = [];
+            storeGroups.forEach((products, store) => {
+                avgPrices.push({
+                    store,
+                    avg: Math.round(d3.mean(products, d => d.price)),
+                    count: products.length
+                });
+            });
+            avgPrices.sort((a, b) => b.avg - a.avg);
+
+            const maxAvg = d3.max(avgPrices, d => d.avg) || 1;
+            const barsContainer = document.getElementById('avg-price-bars');
+            barsContainer.innerHTML = avgPrices.map(d => `
+            <div class="space-y-2">
+                <div class="flex justify-between text-xs font-bold text-on-surface-variant mb-1">
+                    <span>${d.store}</span>
+                    <span>NT$${d.avg.toLocaleString()} 均價</span>
+                </div>
+                <div class="h-2 w-full bg-surface-container-low rounded-full overflow-hidden">
+                    <div class="h-full rounded-full transition-all duration-700" style="width:${(d.avg / maxAvg * 100).toFixed(1)}%; background:${COLOR_SCALE(d.store)}"></div>
+                </div>
+            </div>
+        `).join('');
+
+            // Summary insights
+            const insights = document.getElementById('summary-insights');
+            const totalProducts = d3.sum(storeData, d => d.count);
+            const totalStores = storeData.length;
+            const globalAvg = scatterData.length > 0 ? Math.round(d3.mean(scatterData, d => d.price)) : 0;
+            const medianPrice = scatterData.length > 0 ? Math.round(d3.median(scatterData, d => d.price)) : 0;
+
+            insights.innerHTML = `
+            <div class="bg-surface-container-low p-4 rounded-xl border-l-4" style="border-color:${COLORS.tertiary}">
+                <div class="text-[10px] font-bold text-on-surface-variant uppercase mb-1">商店數量</div>
+                <div class="text-xl font-black text-on-surface">${totalStores} 家</div>
+                <p class="text-[11px] text-on-surface-variant mt-2">共涵蓋 ${totalStores} 個不同來源的商品資料</p>
+            </div>
+            <div class="bg-surface-container-low p-4 rounded-xl border-l-4" style="border-color:${COLORS.primary}">
+                <div class="text-[10px] font-bold text-on-surface-variant uppercase mb-1">中位數價格</div>
+                <div class="text-xl font-black text-on-surface">NT$${medianPrice.toLocaleString()}</div>
+                <p class="text-[11px] text-on-surface-variant mt-2">相較平均價格 NT$${globalAvg.toLocaleString()}</p>
+            </div>
+            <div class="mt-2 p-4 bg-primary/5 rounded-xl flex items-center gap-4 col-span-2">
+                <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">lightbulb</span>
+                <div class="text-xs font-medium text-on-surface-variant">
+                    目前共有 <span class="font-bold text-primary">${totalProducts}</span> 筆產品資料，分佈在 <span class="font-bold text-primary">${totalStores}</span> 家商店中。平均價格為 <span class="font-bold text-primary">NT$${globalAvg.toLocaleString()}</span>。
+                </div>
+            </div>
+        `;
+        }
+
+        // ==========================================
+        // Main: Load Data & Render
+        // ==========================================
+        function loadDashboard(keyword) {
+            const queryParam = keyword ? `?keyword=${encodeURIComponent(keyword)}` : '';
+
+            // Show loading state: clear existing charts and show spinners
+            ['chart-store-ratio', 'chart-price-range', 'chart-scatter'].forEach(id => {
+                const el = document.getElementById(id);
+                el.innerHTML = '<div class="chart-loading"><div class="spinner"></div><span class="text-xs font-medium">載入中...</span></div>';
+            });
+            document.getElementById('donut-legend').innerHTML = '';
+            document.getElementById('product-table-card').style.display = 'none';
+            document.getElementById('avg-price-bars').innerHTML = '<div class="chart-loading"><div class="spinner"></div><span class="text-xs font-medium">載入中...</span></div>';
+            document.getElementById('summary-insights').innerHTML = '<div class="chart-loading col-span-2"><div class="spinner"></div><span class="text-xs font-medium">載入中...</span></div>';
+
+            // Reset stats
+            ['stat-total-products', 'stat-avg-price', 'stat-top-store', 'stat-price-range'].forEach(id => {
+                document.getElementById(id).textContent = '—';
+            });
+
+            Promise.all([
+                d3.json(`/api/data/store_ratio${queryParam}`),
+                d3.json(`/api/data/price_range${queryParam}`),
+                d3.json(`/api/data/scatter${queryParam}`)
+            ]).then(function ([storeData, rangeData, scatterData]) {
+                console.log('查詢關鍵字:', keyword || '(全部)');
+                console.log('商店占比資料:', storeData);
+                console.log('價格區間資料:', rangeData);
+                console.log('散點圖資料:', scatterData);
+
+                // Clear existing SVGs before redraw
+                ['chart-store-ratio', 'chart-price-range', 'chart-scatter'].forEach(id => {
+                    document.getElementById(id).innerHTML = '';
+                });
+                document.getElementById('donut-legend').innerHTML = '';
+
+                // Draw D3 Charts
+                if (storeData.length > 0) {
+                    drawStoreRatioChart(storeData);
+                } else {
+                    document.getElementById('chart-store-ratio').innerHTML = '<div class="chart-loading"><span class="material-symbols-outlined text-on-surface-variant">info</span><span class="text-xs font-medium">無符合條件的資料</span></div>';
+                }
+                drawPriceRangeChart(rangeData);
+                if (scatterData.length > 0) {
+                    drawScatterChart(scatterData);
+                } else {
+                    document.getElementById('chart-scatter').innerHTML = '<div class="chart-loading"><span class="material-symbols-outlined text-on-surface-variant">info</span><span class="text-xs font-medium">無符合條件的資料</span></div>';
+                }
+
+                // Populate dynamic UI (table is hidden until brush selection)
+                if (storeData.length > 0) {
+                    populateStats(storeData, scatterData);
+                }
+                populateAvgPriceBars(scatterData, storeData);
+
+            }).catch(error => {
+                console.error('載入資料時發生錯誤:', error);
+
+                // Show error in all chart containers
+                document.querySelectorAll('.chart-loading').forEach(el => {
+                    el.innerHTML = `
+                    <span class="material-symbols-outlined text-error">error</span>
+                    <span class="text-xs font-medium text-error">資料載入失敗</span>
+                `;
+                });
+            });
+        }
+
+        // ==========================================
+        // Search Bar Event Handlers
+        // ==========================================
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.getElementById('search-btn');
+        const clearSearchBtn = document.getElementById('clear-search-btn');
+
+        function doSearch() {
+            const keyword = searchInput.value.trim();
+            if (keyword) {
+                clearSearchBtn.style.display = 'inline-flex';
+            } else {
+                clearSearchBtn.style.display = 'none';
+            }
+            loadDashboard(keyword || null);
+        }
+
+        searchBtn.addEventListener('click', doSearch);
+        searchInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                doSearch();
+            }
+        });
+        clearSearchBtn.addEventListener('click', function () {
+            searchInput.value = '';
+            clearSearchBtn.style.display = 'none';
+            loadDashboard(null);
+        });
+
+        // Initial load: show all data
+        loadDashboard(null);
+    </script>
+</body>
+
+</html>
