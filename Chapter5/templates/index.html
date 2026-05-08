@@ -222,65 +222,45 @@
     <!-- D3 Tooltip -->
     <div id="d3-tooltip"></div>
 
-    <!-- SideNavBar -->
-    <aside
-        class="hidden md:flex flex-col h-screen w-64 bg-slate-100 border-r-0 fixed left-0 top-0 py-8 z-20 border-r-2 border-slate-200">
-        <div class="px-6 mb-10">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-                    <span class="material-symbols-outlined text-on-primary"
-                        style="font-variation-settings: 'FILL' 1;">analytics</span>
-                </div>
-                <div>
-                    <div class="text-lg font-black text-cyan-800 leading-tight">InsightEngine</div>
-                    <div class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">產品分析平台</div>
-                </div>
+    <!-- SideNavBar (collapsible) -->
+    <aside id="sidebar"
+        class="hidden md:flex flex-col h-screen bg-slate-100 fixed left-0 top-0 py-4 z-20 border-r border-slate-200 transition-all duration-300 overflow-hidden"
+        style="width: var(--sidebar-w, 56px)">
+        <!-- Logo row -->
+        <div class="flex items-center gap-3 px-3 mb-5 flex-shrink-0">
+            <div class="w-9 h-9 bg-primary rounded-xl flex items-center justify-center flex-shrink-0">
+                <span class="material-symbols-outlined text-on-primary text-xl"
+                    style="font-variation-settings: 'FILL' 1;">analytics</span>
+            </div>
+            <div class="sidebar-text overflow-hidden whitespace-nowrap transition-all duration-300">
+                <div class="text-sm font-black text-cyan-800 leading-tight">InsightEngine</div>
+                <div class="text-[9px] uppercase tracking-widest text-on-surface-variant font-bold">產品分析平台</div>
             </div>
         </div>
-        <nav class="flex-1 space-y-1">
-            <a class="flex items-center gap-4 px-6 py-3 text-cyan-800 font-bold border-r-4 border-cyan-600 transition-all"
-                href="#">
-                <span class="material-symbols-outlined">dashboard</span>
-                <span class="font-manrope label-md font-medium">總覽</span>
+        <!-- Nav items -->
+        <nav class="flex-1 flex flex-col space-y-1 w-full px-2">
+            <a class="flex items-center gap-3 px-2 py-2 rounded-xl text-cyan-800 bg-cyan-100 transition-all" href="#">
+                <span class="material-symbols-outlined text-xl flex-shrink-0">dashboard</span>
+                <span class="sidebar-text text-sm font-semibold overflow-hidden whitespace-nowrap">總覽</span>
             </a>
-            <!-- <a class="flex items-center gap-4 px-6 py-3 text-slate-600 hover:text-cyan-600 transition-all" href="#">
-            <span class="material-symbols-outlined">payments</span>
-            <span class="font-manrope label-md font-medium">價格分析</span>
-            </a>
-            <a class="flex items-center gap-4 px-6 py-3 text-slate-600 hover:text-cyan-600 transition-all" href="#">
-                <span class="material-symbols-outlined">inventory_2</span>
-                <span class="font-manrope label-md font-medium">商品庫存</span>
-            </a>
-            <a class="flex items-center gap-4 px-6 py-3 text-slate-600 hover:text-cyan-600 transition-all" href="#">
-                <span class="material-symbols-outlined">store</span>
-                <span class="font-manrope label-md font-medium">商店管理</span>
-            </a>
-            <a class="flex items-center gap-4 px-6 py-3 text-slate-600 hover:text-cyan-600 transition-all" href="#">
-                <span class="material-symbols-outlined">analytics</span>
-                <span class="font-manrope label-md font-medium">報表匯出</span>
-            </a> -->
         </nav>
-        <!-- <div class="px-6 pt-4 mt-4 border-t border-outline-variant/10">
-            <button
-                class="w-full bg-primary text-on-primary py-3 px-4 rounded-xl font-bold text-sm shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
-                匯出報表
+        <!-- Toggle button at bottom -->
+        <div class="px-2 mt-2">
+            <button id="sidebar-toggle"
+                class="flex items-center justify-center w-full h-9 rounded-xl text-slate-500 hover:bg-slate-200 transition-colors">
+                <span id="sidebar-toggle-icon" class="material-symbols-outlined text-xl">chevron_right</span>
             </button>
         </div>
-        <div class="mt-auto px-6 space-y-1">
-            <a class="flex items-center gap-4 py-3 text-slate-600 hover:text-cyan-600 transition-all" href="#">
-                <span class="material-symbols-outlined">help</span>
-                <span class="font-manrope label-md font-medium">支援</span>
-            </a>
-        </div> -->
     </aside>
 
     <!-- Main Content Area -->
-    <main class="flex-1 md:ml-64 flex flex-col min-h-screen relative bg-surface-container-low">
+    <main id="main-content" class="flex-1 flex flex-col min-h-screen relative bg-surface-container-low transition-all duration-300"
+        style="margin-left: var(--sidebar-w, 56px)">
         <!-- TopNavBar -->
-        <header class="bg-slate-50 sticky top-0 z-10 w-full flex justify-between items-center px-6 py-3 border-b-0">
-            <div class="flex items-center gap-8 flex-1">
-                <h1 class="font-manrope text-xl font-bold text-cyan-900 tracking-tight">產品資料視覺化儀表板</h1>
-                <div class="relative max-w-md w-full flex items-center gap-2">
+        <header class="bg-slate-50 sticky top-0 z-10 w-full flex justify-between items-center px-4 py-2 border-b border-slate-200">
+            <div class="flex items-center gap-4 flex-1">
+                <h1 class="font-manrope text-base font-bold text-cyan-900 tracking-tight whitespace-nowrap">產品資料視覺化儀表板</h1>
+                <div class="relative max-w-sm w-full flex items-center gap-2">
                     <div class="relative flex-1">
                         <span
                             class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
@@ -310,63 +290,59 @@
         </header>
 
         <!-- Dashboard Content -->
-        <div class="p-8 space-y-8">
+        <div class="p-5 space-y-5">
 
             <!-- Top Stats: Four Summary Cards (dynamically populated) -->
-            <div id="stats-cards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div id="stats-cards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <!-- Stat Card 1: Total Products -->
-                <div class="bg-surface-container-lowest p-6 rounded-xl transition-all hover:translate-y-[-4px]">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
-                            <span class="material-symbols-outlined">inventory_2</span>
-                        </div>
+                <div class="bg-surface-container-lowest p-4 rounded-xl transition-all hover:translate-y-[-2px] flex items-center gap-4">
+                    <div class="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary flex-shrink-0">
+                        <span class="material-symbols-outlined text-xl">inventory_2</span>
                     </div>
-                    <div class="text-on-surface-variant text-sm font-medium">總產品數</div>
-                    <div id="stat-total-products" class="font-manrope text-3xl font-extrabold text-on-surface mt-1">—
+                    <div>
+                        <div class="text-on-surface-variant text-xs font-medium">總產品數</div>
+                        <div id="stat-total-products" class="font-manrope text-2xl font-extrabold text-on-surface">—</div>
                     </div>
                 </div>
                 <!-- Stat Card 2: Average Price -->
-                <div class="bg-surface-container-lowest p-6 rounded-xl transition-all hover:translate-y-[-4px]">
-                    <div class="flex items-center justify-between mb-4">
-                        <div
-                            class="w-12 h-12 bg-secondary-container rounded-xl flex items-center justify-center text-primary">
-                            <span class="material-symbols-outlined">payments</span>
-                        </div>
+                <div class="bg-surface-container-lowest p-4 rounded-xl transition-all hover:translate-y-[-2px] flex items-center gap-4">
+                    <div class="w-10 h-10 bg-secondary-container rounded-xl flex items-center justify-center text-primary flex-shrink-0">
+                        <span class="material-symbols-outlined text-xl">payments</span>
                     </div>
-                    <div class="text-on-surface-variant text-sm font-medium">平均價格</div>
-                    <div id="stat-avg-price" class="font-manrope text-3xl font-extrabold text-on-surface mt-1">—</div>
+                    <div>
+                        <div class="text-on-surface-variant text-xs font-medium">平均價格</div>
+                        <div id="stat-avg-price" class="font-manrope text-2xl font-extrabold text-on-surface">—</div>
+                    </div>
                 </div>
                 <!-- Stat Card 3: Top Store -->
-                <div class="bg-primary p-6 rounded-xl transition-all hover:translate-y-[-4px] text-on-primary">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                            <span class="material-symbols-outlined">store</span>
-                        </div>
-                        <span class="text-white/80 font-bold text-sm">最大來源</span>
+                <div class="bg-primary p-4 rounded-xl transition-all hover:translate-y-[-2px] text-on-primary flex items-center gap-4">
+                    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <span class="material-symbols-outlined text-xl">store</span>
                     </div>
-                    <div class="text-white/70 text-sm font-medium">商品最多的商店</div>
-                    <div id="stat-top-store" class="font-manrope text-3xl font-extrabold mt-1">—</div>
+                    <div>
+                        <div class="text-white/70 text-xs font-medium">商品最多商店</div>
+                        <div id="stat-top-store" class="font-manrope text-2xl font-extrabold mt-0.5">—</div>
+                    </div>
                 </div>
                 <!-- Stat Card 4: Price Range -->
-                <div class="bg-surface-container-lowest p-6 rounded-xl transition-all hover:translate-y-[-4px]">
-                    <div class="flex items-center justify-between mb-4">
-                        <div
-                            class="w-12 h-12 bg-tertiary-fixed rounded-xl flex items-center justify-center text-tertiary">
-                            <span class="material-symbols-outlined">straighten</span>
-                        </div>
+                <div class="bg-surface-container-lowest p-4 rounded-xl transition-all hover:translate-y-[-2px] flex items-center gap-4">
+                    <div class="w-10 h-10 bg-tertiary-fixed rounded-xl flex items-center justify-center text-tertiary flex-shrink-0">
+                        <span class="material-symbols-outlined text-xl">straighten</span>
                     </div>
-                    <div class="text-on-surface-variant text-sm font-medium">價格範圍</div>
-                    <div id="stat-price-range" class="font-manrope text-3xl font-extrabold text-on-surface mt-1">—</div>
+                    <div>
+                        <div class="text-on-surface-variant text-xs font-medium">價格範圍</div>
+                        <div id="stat-price-range" class="font-manrope text-2xl font-extrabold text-on-surface">—</div>
+                    </div>
                 </div>
             </div>
 
             <!-- Row 1: Donut Chart + Bar Chart -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 <!-- Source Distribution (D3 Donut Chart) -->
-                <div class="lg:col-span-1 bg-surface-container-lowest p-6 rounded-xl">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="font-manrope headline-sm font-bold text-on-surface">各商店產品占比</h3>
-                        <span class="material-symbols-outlined text-on-surface-variant">donut_large</span>
+                <div class="lg:col-span-1 bg-surface-container-lowest p-4 rounded-xl">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-manrope text-sm font-bold text-on-surface">各商店產品占比</h3>
+                        <span class="material-symbols-outlined text-on-surface-variant text-xl">donut_large</span>
                     </div>
                     <div id="chart-store-ratio" class="d3-chart-container flex flex-col items-center">
                         <div class="chart-loading">
@@ -375,14 +351,14 @@
                         </div>
                     </div>
                     <!-- Legend will be appended here dynamically -->
-                    <div id="donut-legend" class="mt-6 space-y-3"></div>
+                    <div id="donut-legend" class="mt-3 space-y-2"></div>
                 </div>
 
                 <!-- Price Distribution (D3 Bar Chart) - full width within 2/3 -->
-                <div class="lg:col-span-2 bg-surface-container-lowest p-6 rounded-xl">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="font-manrope headline-sm font-bold text-on-surface">價格區間筆數</h3>
-                        <span class="material-symbols-outlined text-on-surface-variant">bar_chart</span>
+                <div class="lg:col-span-2 bg-surface-container-lowest p-4 rounded-xl">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-manrope text-sm font-bold text-on-surface">價格區間筆數</h3>
+                        <span class="material-symbols-outlined text-on-surface-variant text-xl">bar_chart</span>
                     </div>
                     <div id="chart-price-range" class="d3-chart-container w-full">
                         <div class="chart-loading">
@@ -394,12 +370,12 @@
             </div>
 
             <!-- Scatter Plot - full width -->
-            <div class="space-y-6">
-                <div class="bg-surface-container-lowest p-8 rounded-xl relative overflow-visible">
-                    <div class="flex items-center justify-between mb-8">
+            <div class="space-y-4">
+                <div class="bg-surface-container-lowest p-4 rounded-xl relative overflow-visible">
+                    <div class="flex items-center justify-between mb-4">
                         <div>
-                            <h3 class="font-manrope headline-sm font-bold text-on-surface">產品價格與商店分佈</h3>
-                            <p class="text-sm text-on-surface-variant mt-1">拖曳框選圓點可篩選產品明細，點擊圓點可開啟連結，懸停可查看詳情</p>
+                            <h3 class="font-manrope text-sm font-bold text-on-surface">產品價格與商店分佈</h3>
+                            <p class="text-xs text-on-surface-variant mt-0.5">拖曳框選圓點可篩選產品明細，點擊圓點可開啟連結，懸停可查看詳情</p>
                         </div>
                         <div id="scatter-legend" class="flex items-center gap-6">
                             <!-- D3 will populate this -->
@@ -415,15 +391,15 @@
 
                 <!-- Product Data Table (hidden until brush selection) -->
                 <div id="product-table-card"
-                    class="bg-surface-container-lowest p-8 rounded-xl border border-primary/5 shadow-sm"
+                    class="bg-surface-container-lowest p-4 rounded-xl border border-primary/5 shadow-sm"
                     style="display:none;">
-                    <div class="flex items-center justify-between mb-6">
-                        <div class="flex items-center gap-3">
-                            <div class="p-2 bg-primary/10 rounded-lg">
-                                <span class="material-symbols-outlined text-primary">analytics</span>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 bg-primary/10 rounded-lg">
+                                <span class="material-symbols-outlined text-primary text-xl">analytics</span>
                             </div>
                             <div>
-                                <h3 class="font-manrope headline-sm font-bold text-on-surface">產品資料明細</h3>
+                                <h3 class="font-manrope text-sm font-bold text-on-surface">產品資料明細</h3>
                                 <p id="table-subtitle" class="text-xs text-on-surface-variant font-medium">
                                     框選散點圖中的資料點以顯示明細</p>
                             </div>
@@ -468,10 +444,10 @@
             </div>
 
             <!-- Bottom Row: Average Price per Store -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-surface-container-lowest p-6 rounded-xl">
-                    <div class="flex items-center justify-between mb-8">
-                        <h3 class="font-manrope headline-sm font-bold text-on-surface">各商店平均價格</h3>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="bg-surface-container-lowest p-4 rounded-xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-manrope text-sm font-bold text-on-surface">各商店平均價格</h3>
                     </div>
                     <div id="avg-price-bars" class="space-y-6">
                         <div class="chart-loading">
@@ -481,9 +457,9 @@
                     </div>
                 </div>
                 <!-- Summary Insights -->
-                <div class="bg-surface-container-lowest p-6 rounded-xl">
-                    <div class="flex items-center justify-between mb-8">
-                        <h3 class="font-manrope headline-sm font-bold text-on-surface">資料摘要</h3>
+                <div class="bg-surface-container-lowest p-4 rounded-xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-manrope text-sm font-bold text-on-surface">資料摘要</h3>
                     </div>
                     <div id="summary-insights" class="grid grid-cols-2 gap-4">
                         <div class="chart-loading col-span-2">
@@ -1085,6 +1061,47 @@
         // ==========================================
         // Main: Load Data & Render
         // ==========================================
+
+        // Cache last fetched data for resize re-render
+        let _cachedStore   = null;
+        let _cachedRange   = null;
+        let _cachedScatter = null;
+
+        // Re-draw all charts from cached data (no network request)
+        function redrawCharts() {
+            if (!_cachedStore) return;
+
+            ['chart-store-ratio', 'chart-price-range', 'chart-scatter'].forEach(id => {
+                document.getElementById(id).innerHTML = '';
+            });
+            document.getElementById('donut-legend').innerHTML = '';
+            document.getElementById('product-table-card').style.display = 'none';
+
+            if (_cachedStore.length > 0) {
+                drawStoreRatioChart(_cachedStore);
+            } else {
+                document.getElementById('chart-store-ratio').innerHTML = '<div class="chart-loading"><span class="material-symbols-outlined text-on-surface-variant">info</span><span class="text-xs font-medium">無符合條件的資料</span></div>';
+            }
+            drawPriceRangeChart(_cachedRange);
+            if (_cachedScatter.length > 0) {
+                drawScatterChart(_cachedScatter);
+            } else {
+                document.getElementById('chart-scatter').innerHTML = '<div class="chart-loading"><span class="material-symbols-outlined text-on-surface-variant">info</span><span class="text-xs font-medium">無符合條件的資料</span></div>';
+            }
+        }
+
+        // Debounce helper
+        function debounce(fn, delay) {
+            let timer;
+            return function (...args) {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn.apply(this, args), delay);
+            };
+        }
+
+        // Re-draw on window resize (debounced 200ms)
+        window.addEventListener('resize', debounce(redrawCharts, 200));
+
         function loadDashboard(keyword) {
             const queryParam = keyword ? `?keyword=${encodeURIComponent(keyword)}` : '';
 
@@ -1109,9 +1126,11 @@
                 d3.json(`/api/data/scatter${queryParam}`)
             ]).then(function ([storeData, rangeData, scatterData]) {
                 console.log('查詢關鍵字:', keyword || '(全部)');
-                console.log('商店占比資料:', storeData);
-                console.log('價格區間資料:', rangeData);
-                console.log('散點圖資料:', scatterData);
+
+                // Cache for resize re-render
+                _cachedStore   = storeData;
+                _cachedRange   = rangeData;
+                _cachedScatter = scatterData;
 
                 // Clear existing SVGs before redraw
                 ['chart-store-ratio', 'chart-price-range', 'chart-scatter'].forEach(id => {
@@ -1182,6 +1201,45 @@
 
         // Initial load: show all data
         loadDashboard(null);
+
+        // ==========================================
+        // Sidebar Toggle (collapsible)
+        // ==========================================
+        const SIDEBAR_COLLAPSED_W = '56px';
+        const SIDEBAR_EXPANDED_W  = '200px';
+
+        const sidebar      = document.getElementById('sidebar');
+        const mainContent  = document.getElementById('main-content');
+        const toggleBtn    = document.getElementById('sidebar-toggle');
+        const toggleIcon   = document.getElementById('sidebar-toggle-icon');
+        const sidebarTexts = document.querySelectorAll('.sidebar-text');
+
+        // Restore state from localStorage
+        let sidebarExpanded = localStorage.getItem('sidebarExpanded') !== 'false';
+
+        function applySidebarState(animate) {
+            const w = sidebarExpanded ? SIDEBAR_EXPANDED_W : SIDEBAR_COLLAPSED_W;
+            sidebar.style.setProperty('--sidebar-w', w);
+            mainContent.style.setProperty('--sidebar-w', w);
+            // Tailwind CSS variable trick: set directly
+            sidebar.style.width = w;
+            mainContent.style.marginLeft = w;
+            toggleIcon.textContent = sidebarExpanded ? 'chevron_left' : 'chevron_right';
+            sidebarTexts.forEach(el => {
+                el.style.width      = sidebarExpanded ? 'auto' : '0';
+                el.style.opacity    = sidebarExpanded ? '1'    : '0';
+            });
+        }
+
+        toggleBtn.addEventListener('click', function () {
+            sidebarExpanded = !sidebarExpanded;
+            localStorage.setItem('sidebarExpanded', sidebarExpanded);
+            applySidebarState(true);
+            // Wait for CSS transition to finish (300ms) then redraw charts
+            setTimeout(redrawCharts, 320);
+        });
+
+        applySidebarState(false);
     </script>
 </body>
 
