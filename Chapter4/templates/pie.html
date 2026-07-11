@@ -1,29 +1,10 @@
-<style>
-    body {
-        font-family: sans-serif;
-    }
-
-    .label {
-        font-size: 12px;
-        fill: white;
-        text-anchor: middle;
-    }
-</style>
-
-<h2>產品訂單比例</h2>
-<button id="back_to_main_pie_button" style="display: none" onclick="renderMainPieChart()">back</button>
-<div id="pie_chart" width="500" height="500"></div>
-<div id="pie_chart_tooltip" style="
-    position: absolute;
-    visibility: hidden;
-    background-color: rgba(0,0,0,0.7);
-    color: white;
-    padding: 6px 10px;
-    border-radius: 5px;
-    font-size: 14px;
-    pointer-events: none;
-    z-index: 100;">
+<div class="card-toolbar">
+    <h2 style="margin: 0;">產品訂單占比</h2>
+    <button id="back_to_main_pie_button" class="btn" style="display: none" onclick="renderMainPieChart()">&larr;
+        返回主類別</button>
 </div>
+<div id="pie_chart"></div>
+<div id="pie_chart_tooltip" class="viz-tooltip"></div>
 
 
 <script src="{{ url_for('static', filename='js/pie_chart.js') }}"></script>

@@ -7,21 +7,22 @@ const barPadding = 10 / barStep;
 const duration = 750;
 const width = 960;
 
-const color = d3.scaleOrdinal([true, false], ["steelblue", "#aaa"]);
+// 有子節點（可繼續下鑽）用主識別藍以提示可點擊、葉節點（最終數值）用中性灰
+const color = d3.scaleOrdinal([true, false], ["#2a78d6", "#898781"]);
 
 const x = d3.scaleLinear().range([marginLeft, width - marginRight]);
 
 const xAxis = g => g
-    .attr("class", "x-axis")
+    .attr("class", "x-axis axis")
     .attr("transform", `translate(0,${marginTop})`)
     .call(d3.axisTop(x).ticks(width / 80, "s"))
     .call(g => (g.selection ? g.selection() : g).select(".domain").remove());
 
 const yAxis = g => g
-    .attr("class", "y-axis")
+    .attr("class", "y-axis axis")
     .attr("transform", `translate(${marginLeft + 0.5},0)`)
     .call(g => g.append("line")
-        .attr("stroke", "currentColor")
+        .attr("stroke", "#c3c2b7")
         .attr("y1", marginTop)
         .attr("y2", height - marginBottom));
 
@@ -60,7 +61,8 @@ function bar(svg, down, d, selector) {
         .attr("class", "enter")
         .attr("transform", `translate(0,${marginTop + barStep * barPadding})`)
         .attr("text-anchor", "end")
-        .style("font", "13px sans-serif");
+        .style("font", "13px system-ui, -apple-system, 'Segoe UI', 'PingFang TC', 'Microsoft JhengHei', sans-serif")
+        .style("fill", "#0b0b0b");
 
     const bar = g.selectAll("g")
         .data(d.children)
@@ -78,11 +80,13 @@ function bar(svg, down, d, selector) {
         .attr("x", x(0))
         .attr("width", d => x(d.value) - x(0))
         .attr("height", barStep * (1 - barPadding))
+        .attr("rx", 3)
         .attr("fill", d => color(!!d.children))
+        .attr("fill-opacity", 0.92)
         .on("mouseover", function (event, d) {
             tooltip.style("visibility", "visible")
-                .text(`${d.data.name}: ${d.value}`);
-            d3.select(this).attr("stroke", "black").attr("stroke-width", 1.5);
+                .html(`<strong>${d.data.name}</strong><br>${d.value.toLocaleString()}`);
+            d3.select(this).attr("fill-opacity", 1);
         })
         .on("mousemove", function (event) {
             tooltip
@@ -91,7 +95,7 @@ function bar(svg, down, d, selector) {
         })
         .on("mouseout", function () {
             tooltip.style("visibility", "hidden");
-            d3.select(this).attr("stroke", null);
+            d3.select(this).attr("fill-opacity", 0.92);
         });
 
     return g;

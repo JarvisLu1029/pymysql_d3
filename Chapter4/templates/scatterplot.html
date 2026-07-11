@@ -1,49 +1,114 @@
-<!DOCTYPE html>
-<html lang="en">
+<style>
+    .brush .selection {
+        fill: #2a78d6;
+        fill-opacity: 0.08;
+        stroke: #2a78d6;
+        stroke-opacity: 0.4;
+    }
 
-<head>
-    <meta charset="UTF-8">
-    <title>D3 Brushable Scatterplot</title>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <style>
-        .brush .selection {
-            fill: lightgray;
-            fill-opacity: 0.3;
-            stroke: #999;
-        }
+    #subCategorySelect {
+        height: 32px;
+    }
 
-        #subCategorySelect {
-            height: 30px;
-        }
-    </style>
-</head>
+    #scatter_plot circle {
+        transition: r 100ms ease;
+    }
 
-<body>
-    <div style="display: flex;">
-        <div>
-            <svg id="scatter_plot" width="700" height="500"></svg>
+    #scatter_plot circle.selected {
+        stroke: #0b0b0b;
+        stroke-width: 2px;
+    }
+
+    #scatterplot-layout {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        align-items: flex-start;
+    }
+
+    #selected-info-panel {
+        min-width: 220px;
+        flex: 1 1 260px;
+    }
+
+    #selected-info-panel h3 {
+        margin: 0 0 10px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-secondary);
+    }
+
+    .data-table tr.row-alt {
+        background: rgba(11, 11, 11, 0.03);
+    }
+
+    .data-table td.cell-profit.positive {
+        color: #006300;
+        font-weight: 600;
+    }
+
+    .data-table td.cell-profit.negative {
+        color: #d03b3b;
+        font-weight: 600;
+    }
+
+    .category-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 6px;
+        vertical-align: middle;
+    }
+
+    #table-pagination {
+        display: none;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+        font-size: 12px;
+        color: var(--text-secondary);
+    }
+
+    #table-pagination .btn:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+    }
+
+    #data-table-wrap {
+        max-height: 320px;
+        overflow-y: auto;
+    }
+</style>
+
+<div class="card-toolbar">
+    <h2 style="margin: 0;">銷售額 vs 利潤率</h2>
+    <div id="selected-info"></div>
+</div>
+
+<div class="viz-legend" id="scatter_legend"></div>
+
+<div id="scatterplot-layout">
+    <svg id="scatter_plot" width="620" height="420"></svg>
+    <div id="selected-info-panel">
+        <div id="data-table-wrap">
+            <table id="data-table" class="data-table">
+                <thead>
+                    <tr>
+                        <th>Sales</th>
+                        <th>Profit %</th>
+                        <th>Category</th>
+                        <th>Sub Category</th>
+                        <th>Product Name</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
-        <div style="display: flex; margin-left: 20px;">
-            <div id="selected-info">
-
-            </div>
-            <div style="margin-left: 20px;">
-                <table id="data-table" border="1">
-                    <thead>
-                        <tr>
-                            <th>Sales</th>
-                            <th>Profit</th>
-                            <th>Category</th>
-                            <th>Sub Category</th>
-                            <th>Product Name</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
+        <div id="table-pagination"></div>
     </div>
-</body>
+</div>
+<div id="scatter_tooltip" class="viz-tooltip"></div>
 
 <script src="{{ url_for('static', filename='js/scatterplot.js') }}"></script>
 <script>
@@ -63,5 +128,3 @@
     }
     renderScatterplot();
 </script>
-
-</html>

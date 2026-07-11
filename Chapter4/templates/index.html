@@ -1,42 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <title>iSpan PyMySQL</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <title>銷售儀表板</title>
 </head>
 
-<style>
-    .chart-container {
-        margin: 10px 10px;
-        border: 1px solid #ccc;
-        padding: 10px;
-    }
-
-    h2 {
-        margin: 0 0 10px 0;
-    }
-</style>
-
 <body>
-    <div style="display: flex;">
-        <!-- <div class="chart-container">
-            {% include 'bar.html' %}
-        </div> -->
-        <div class="chart-container">
+    <header class="dashboard-header">
+        <h1>銷售儀表板</h1>
+        <p>產品類別、銷售與利潤總覽</p>
+    </header>
+
+    <main class="dashboard-grid">
+        <div style="max-width: 430px;" class="card">
             {% include 'pie.html' %}
         </div>
-        <div class="chart-container">
+        <div class="card">
             {% include 'hierarchical_bar.html' %}
         </div>
-    </div>
-
-    <div class="chart-container" style="max-width: max-content;">
-        {% include 'scatterplot.html' %}
-    </div>
-
+        <div class="card card--wide">
+            {% include 'scatterplot.html' %}
+        </div>
+    </main>
 </body>
 
 </html>
