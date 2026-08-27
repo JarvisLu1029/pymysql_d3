@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#12100d">
+  <title>午夜藍寶石失竊案｜PyMySQL 偵探教室</title>
+  <meta name="description" content="以 PyMySQL 查詢證據，逐步破解午夜藍寶石失竊案。">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700;900&family=Special+Elite&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', path='/css/detective.css') }}">
+</head>
+<body>
+  <div class="rain" aria-hidden="true"></div>
+  <header class="masthead">
+    <p class="eyebrow">DETECTIVE ACADEMY · CASE No. 0820</p><h1>午夜藍寶石<br><span>失竊案</span></h1>
+    <p class="lead">資料不會說謊。讓每一列查詢結果，成為你的證詞。</p>
+    <div class="case-meta" aria-label="案件摘要"><span>發現時間<strong>21:25</strong></span><span>案發地點<strong>博物館 R03</strong></span><span>關係人<strong>10 名</strong></span></div>
+  </header>
+  <main>
+    <section class="progress-panel" aria-label="辦案進度">
+      <div class="progress-copy"><span>調查進度</span><strong>{{ unlocked }} / {{ total }}</strong></div>
+      <div class="progress-track"><i style="width: {{ (unlocked / total * 100)|round }}%"></i></div>
+      <ol class="case-dots">{% for item in chapters %}<li class="{% if loop.index <= unlocked %}done{% elif loop.index == unlocked + 1 %}active{% endif %}"><span>{{ "%02d"|format(loop.index) }}</span><small>{{ item.label }}</small></li>{% endfor %}</ol>
+    </section>
+
+    {% if unlocked < total %}
+    <article class="case-file" id="active-case">
+      <div class="file-tab">卷宗 {{ "%02d"|format(chapter.number) }} · {{ chapter.label }}</div><div class="stamp">CLASSIFIED</div>
+      <div class="chapter-head"><div><p class="skill">SQL 技能：{{ chapter.skill }}</p><h2>{{ chapter.title }}</h2></div><div class="function-tag"><span>學生函式</span><code>{{ chapter.function_name }}()</code></div></div>
+      <section class="evidence-output" aria-labelledby="evidence-heading">
+        <div class="section-label"><b>01</b><span id="evidence-heading">資料庫鑑識結果</span></div><p class="result-hint">{{ chapter.result_hint }}</p>
+        {% if query_error %}
+          <div class="query-state error"><span class="state-icon">!</span><div><strong>等待學生完成查詢</strong><code>{{ query_error }}</code><p>編輯 <b>03_student_starter.py</b> 後重新整理，本頁會重新載入 function。</p></div></div>
+        {% elif not rows %}
+          <div class="query-state empty"><span class="state-icon">?</span><div><strong>查詢成功，但沒有資料</strong><p>檢查資料表、條件與傳入參數是否正確。</p></div></div>
+        {% else %}
+          <div class="table-wrap" tabindex="0" aria-label="查詢結果，可水平捲動"><table><thead><tr>{% for column in columns %}<th>{{ column }}</th>{% endfor %}</tr></thead><tbody>{% for row in rows %}<tr>{% for column in columns %}<td>{{ row[column] }}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div><p class="row-count">鑑識系統回傳 {{ rows|length }} 筆紀錄</p>
+        {% endif %}
+      </section>
+      <section class="deduction" aria-labelledby="deduction-heading">
+        <div class="section-label"><b>02</b><span id="deduction-heading">提交你的推理</span></div><p class="prompt">{{ chapter.prompt }}</p>
+        <form id="answer-form" autocomplete="off"><input type="hidden" name="level" value="{{ chapter.number }}"><label for="answer">偵探筆記</label><div class="answer-row"><input id="answer" name="answer" maxlength="80" placeholder="{{ chapter.placeholder }}" required {% if query_error %}disabled{% endif %}><button type="submit" {% if query_error %}disabled{% endif %}><span>核對證據</span><i>→</i></button></div><p id="feedback" class="feedback" role="status" aria-live="polite"></p></form>
+      </section>
+    </article>
+    {% else %}
+    <section class="solved" id="active-case"><p class="eyebrow">CASE CLOSED · 2026.08.20</p><div class="seal">破<br>案</div><h2>證據鏈成立</h2><p>你已用六組查詢排除矛盾，找出唯一嫌犯。真正的結論，不靠猜測，而靠可以重現的 SQL。</p><form action="/reset" method="post"><button class="reset-button" type="submit">重新調查案件</button></form></section>
+    {% endif %}
+    <aside class="rules"><span>調查守則</span><p><b>DENIED</b> 不代表進入房間</p><i></i><p>所有輸入使用 <b>%s</b> 參數化</p><i></i><p>推論必須能由查詢結果重現</p></aside>
+  </main>
+  <footer><span>PyMySQL DETECTIVE CLASSROOM</span><span>資料庫是現場，SQL 是放大鏡。</span></footer>
+  <script src="{{ url_for('static', path='/js/game.js') }}" defer></script>
+</body></html>
