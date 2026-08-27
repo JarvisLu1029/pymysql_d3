@@ -1,3 +1,7 @@
 pymysql
 pandas
 Flask
+
+FastAPI
+uvicorn
+itsdangerous

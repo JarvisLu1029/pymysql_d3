@@ -13,8 +13,8 @@ def get_connection():
     return pymysql.connect(
         host=os.getenv("DB_HOST", "127.0.0.1"),
         port=int(os.getenv("DB_PORT", "3306")),
-        user=os.getenv("DB_USER", "detective_student"),
-        password=os.getenv("DB_PASSWORD", "change_me"),
+        user=os.getenv("DB_USER", "root"),
+        password=os.getenv("DB_PASSWORD", "P@ssw0rd!"),
         database="detective_academy",
         charset="utf8mb4",
         cursorclass=DictCursor,
@@ -32,13 +32,23 @@ def run_query(connection, sql, params=None):
 def load_case_brief(connection):
     """第一關：回傳 case_brief 的所有欄位。"""
     # TODO：使用 SELECT 查詢 case_brief View。
-    raise NotImplementedError("請完成 load_case_brief()")
+    query = "SELECT * FROM case_brief;"
+    return run_query(connection, query)
 
 
 def find_successful_r03_entries(connection, start_time, end_time):
     """第二關：回傳案發區間成功進入 R03 的 suspect_id、access_time。"""
     # TODO：使用 WHERE、BETWEEN、ORDER BY，並以 %s 傳入起訖時間。
-    raise NotImplementedError("請完成 find_successful_r03_entries()")
+    query = """
+        SELECT suspect_id, access_time
+        FROM access_logs
+        WHERE result = 'SUCCESS'
+        AND action = 'IN'
+        AND room_id = 'R03'
+        AND access_time BETWEEN %s AND %s
+        ORDER BY access_time;
+    """
+    return run_query(connection, query, (start_time, end_time))
 
 
 def find_physical_matches(connection, shoe_size):

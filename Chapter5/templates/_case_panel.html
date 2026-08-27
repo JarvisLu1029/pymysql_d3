@@ -1,0 +1,27 @@
+{% if chapter %}
+<article class="case-file" id="active-case" data-panel="{{ chapter.number }}">
+  <div class="file-tab">卷宗 {{ "%02d"|format(chapter.number) }} · {{ chapter.label }}</div><div class="stamp">{% if is_current %}CLASSIFIED{% else %}REVIEW{% endif %}</div>
+  <div class="chapter-head"><div><p class="skill">SQL 技能：{{ chapter.skill }}</p><h2>{{ chapter.title }}</h2></div><div class="function-tag"><span>使用函式</span><code>{{ chapter.function_name }}()</code></div></div>
+  <section class="evidence-output" aria-labelledby="evidence-heading">
+    <div class="section-label"><b>01</b><span id="evidence-heading">資料庫鑑識結果</span></div><p class="result-hint">{{ chapter.result_hint }}</p>
+    {% if query_error %}
+      <div class="query-state error"><span class="state-icon">!</span><div><strong>等待學生完成查詢</strong><code>{{ query_error }}</code><p>編輯 <b>03_student_starter.py</b> 後重新整理，本頁會重新載入 function。</p></div></div>
+    {% elif not rows %}
+      <div class="query-state empty"><span class="state-icon">?</span><div><strong>查詢成功，但沒有資料</strong><p>檢查資料表、條件與傳入參數是否正確。</p></div></div>
+    {% else %}
+      <div class="table-wrap" tabindex="0" aria-label="查詢結果，可水平捲動"><table><thead><tr>{% for column in columns %}<th>{{ column }}</th>{% endfor %}</tr></thead><tbody>{% for row in rows %}<tr>{% for column in columns %}<td>{{ row[column] }}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div><p class="row-count">鑑識系統回傳 {{ rows|length }} 筆紀錄</p>
+    {% endif %}
+  </section>
+  <section class="deduction" aria-labelledby="deduction-heading">
+    {% if is_current %}
+      <div class="section-label"><b>02</b><span id="deduction-heading">提交你的推理</span></div><p class="prompt">{{ chapter.prompt }}</p>
+      <form id="answer-form" autocomplete="off"><input type="hidden" name="level" value="{{ chapter.number }}"><label for="answer">偵探筆記</label><div class="answer-row"><input id="answer" name="answer" maxlength="80" placeholder="{{ chapter.placeholder }}" required {% if query_error %}disabled{% endif %}><button type="submit" {% if query_error %}disabled{% endif %}><span>核對證據</span><i>→</i></button></div><p id="feedback" class="feedback" role="status" aria-live="polite"></p></form>
+    {% else %}
+      <div class="section-label"><b>✓</b><span id="deduction-heading">已完成的卷宗</span></div>
+      <div class="review-note"><p>這一關已經完成，目前以唯讀方式顯示當時使用的資料。</p><button class="review-return" type="button" data-panel="{{ resume_panel }}">{% if unlocked < total %}回到目前關卡{% else %}回到結案畫面{% endif %}<i>→</i></button></div>
+    {% endif %}
+  </section>
+</article>
+{% else %}
+<section class="solved" id="active-case" data-panel="0"><p class="eyebrow">CASE CLOSED · 2026.08.20</p><div class="seal">破<br>案</div><h2>證據鏈成立</h2><p>你已用六組查詢排除矛盾，找出唯一嫌犯。真正的結論，不靠猜測，而靠可以重現的 SQL。</p><form action="/reset" method="post" data-reset-form><button class="reset-button" type="submit">重新調查案件</button></form></section>
+{% endif %}
