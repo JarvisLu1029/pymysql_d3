@@ -45,11 +45,11 @@ def _contains(rows: list[dict[str, Any]], *needles: str) -> bool:
 
 CHAPTERS = (
     Chapter(1, "案件卷宗", "黃金吐司消失", "SELECT / View", "黃金吐司從哪一個房間消失？", "例如：R00", "load_case_brief", (), "預期欄位：case_name、estimated_start、discovered_at、crime_room、mission", ("r03", "Ｒ０３"), lambda rows: _contains(rows, "消失的黃金吐司", "R03")),
-    Chapter(2, "門禁紀錄", "不在場證明的裂縫", "WHERE / BETWEEN", "依進入時間，成功進入 R03 的四位人員編號是？", "例如：101,102,103,104", "find_successful_r03_entries", (CASE_START, "2026-08-20 21:25:00"), "預期 4 筆；欄位：suspect_id、access_time，只可包含 SUCCESS + IN", ("101,102,103,106",), lambda rows: len(rows) == 4 and _contains(rows, "101", "102", "103", "106")),
-    Chapter(3, "現場物證", "鞋印與深藍纖維", "AND / 條件組合", "同時符合 27.5 號鞋印與藍色外套的兩人是？", "以逗號分隔兩個姓名", "find_physical_matches", (27.5,), "預期欄位：name、shoe_size、has_blue_jacket", ("淀治,約兒·佛傑", "約兒·佛傑,淀治"), lambda rows: len(rows) == 2 and _contains(rows, "淀治", "約兒·佛傑", "27.5")),
-    Chapter(4, "影像與消費", "銀色容器", "多表 JOIN", "監視器攜帶物與消費品項共同指向什麼物件？", "輸入物件名稱", "find_camera_and_purchase_clues", (CASE_START, CASE_END), "預期欄位：name、seen_time、location、carrying、item_name", ("銀色保溫袋", "保溫袋"), lambda rows: bool(rows) and _contains(rows, "銀色保溫袋", "淀治")),
-    Chapter(5, "數位鑑識", "被刪除的請求", "LIKE / 自我 JOIN", "是誰要求在 21:10 左右進行斷電測試？", "輸入姓名", "find_deleted_messages", ("斷電",), "預期欄位：sender_name、receiver_name、sent_at、message_text、is_deleted", ("淀治",), lambda rows: bool(rows) and _contains(rows, "淀治", "波奇塔", "斷電")),
-    Chapter(6, "最終逮捕令", "五條證據鏈", "DISTINCT / 多表 JOIN", "所有數位證據唯一指向誰？", "輸入完整姓名", "find_prime_suspect", (CASE_START, CASE_END), "預期欄位：suspect_id、name、job_title，且只能有一列", ("淀治", "102"), lambda rows: len(rows) == 1 and _contains(rows, "102", "淀治", "公安惡魔獵人")),
+    Chapter(2, "門禁紀錄", "四名金庫訪客", "WHERE / BETWEEN", "依進入時間，成功進入 R03 的四位人員編號是？", "例如：101,102,103,104", "find_successful_r03_entries", (CASE_START, "2026-08-20 21:25:00"), "預期 4 筆；欄位：suspect_id、access_time，只可包含 SUCCESS + IN", ("104,105,109,102",), lambda rows: len(rows) == 4 and _contains(rows, "102", "104", "105", "109")),
+    Chapter(3, "現場物證", "足跡與橘色纖維", "AND / 條件組合", "同時符合 27.5 足跡與橘色纖維線索的四名嫌疑人是？", "依門禁順序輸入四個姓名", "find_physical_matches", (27.5,), "預期欄位：name、shoe_size、has_orange_accessory", ("帕瓦,波奇塔,彭德·佛傑,淀治",), lambda rows: len(rows) == 4 and _contains(rows, "淀治", "帕瓦", "波奇塔", "彭德·佛傑", "27.5")),
+    Chapter(4, "影像與消費", "無臉的橘色身影", "多表 JOIN", "監視器攜帶物與消費品項共同指向什麼物件？", "輸入物件名稱", "find_camera_and_purchase_clues", (CASE_START, CASE_END), "預期欄位：name、seen_time、location、carrying、item_name", ("銀色保溫袋", "保溫袋"), lambda rows: bool(rows) and _contains(rows, "銀色保溫袋", "淀治")),
+    Chapter(5, "數位鑑識", "被刪除的斷電計畫", "LIKE / 自我 JOIN", "是誰要求波奇塔在 21:10 左右進行斷電？", "輸入姓名", "find_deleted_messages", ("斷電",), "預期欄位：sender_name、receiver_name、sent_at、message_text、is_deleted", ("淀治",), lambda rows: bool(rows) and _contains(rows, "淀治", "波奇塔", "斷電")),
+    Chapter(6, "最終逮捕令", "纖維、保溫袋與咬痕", "DISTINCT / 多表 JOIN", "所有數位證據唯一指向誰？", "輸入完整姓名", "find_prime_suspect", (CASE_START, CASE_END), "預期欄位：suspect_id、name、job_title，且只能有一列", ("淀治", "102"), lambda rows: len(rows) == 1 and _contains(rows, "102", "淀治", "公安惡魔獵人")),
 )
 
 

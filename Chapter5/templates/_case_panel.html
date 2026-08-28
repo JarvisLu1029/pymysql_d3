@@ -2,6 +2,10 @@
 <article class="case-file" id="active-case" data-panel="{{ chapter.number }}">
   <div class="file-tab">卷宗 {{ "%02d"|format(chapter.number) }} · {{ chapter.label }}</div><div class="stamp">{% if is_current %}CLASSIFIED{% else %}REVIEW{% endif %}</div>
   <div class="chapter-head"><div><p class="skill">SQL 技能：{{ chapter.skill }}</p><h2>{{ chapter.title }}</h2></div><div class="function-tag"><span>使用函式</span><code>{{ chapter.function_name }}()</code></div></div>
+  <figure class="chapter-visual">
+    <img src="/static/images/chapters/chapter-{{ "%02d"|format(chapter.number) }}.png" alt="{{ chapter.title }}章節情境插畫" width="1536" height="864">
+    <figcaption><span>CASE RECONSTRUCTION</span><b>卷宗 {{ "%02d"|format(chapter.number) }} 情境重建</b></figcaption>
+  </figure>
   <section class="evidence-output" aria-labelledby="evidence-heading">
     <div class="section-label"><b>01</b><span id="evidence-heading">資料庫鑑識結果</span></div><p class="result-hint">{{ chapter.result_hint }}</p>
     {% if query_error %}

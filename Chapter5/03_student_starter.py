@@ -6,18 +6,20 @@
 
 import os
 import pymysql
-from pymysql.cursors import DictCursor
+from configparser import ConfigParser
 
+config = ConfigParser()
+config.read(os.path.join(os.path.dirname(__file__), "config.ini"))
 
 def get_connection():
     return pymysql.connect(
-        host=os.getenv("DB_HOST", "127.0.0.1"),
-        port=int(os.getenv("DB_PORT", "3306")),
-        user=os.getenv("DB_USER", "root"),
-        password=os.getenv("DB_PASSWORD", "P@ssw0rd!"),
+        host=config.get("DB", "DB_HOST"),
+        port=config.getint("DB", "DB_PORT"),
+        user=config.get("DB", "DB_USER"),
+        password=config.get("DB", "DB_PASSWORD"),
         database="detective_academy",
         charset="utf8mb4",
-        cursorclass=DictCursor,
+        cursorclass=pymysql.cursors.DictCursor,
         autocommit=True,
     )
 
@@ -52,8 +54,8 @@ def find_successful_r03_entries(connection, start_time, end_time):
 
 
 def find_physical_matches(connection, shoe_size):
-    """第三關：回傳鞋號相符且擁有藍色外套者的 name、shoe_size、has_blue_jacket。"""
-    # TODO：使用 AND 組合物證條件，並以 %s 傳入鞋號。
+    """第三關：回傳足跡尺寸相符且有橘色配件者的 name、shoe_size、has_orange_accessory。"""
+    # TODO：使用 AND 組合足跡與橘色纖維條件，並以 %s 傳入尺寸。
     raise NotImplementedError("請完成 find_physical_matches()")
 
 

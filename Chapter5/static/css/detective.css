@@ -313,6 +313,62 @@ main {
     border-bottom: 3px double #918568
 }
 
+.chapter-visual {
+    position: relative;
+    margin: 30px 0 0;
+    overflow: hidden;
+    border: 1px solid #766a50;
+    background: #1a1b1a;
+    box-shadow: 8px 9px 0 rgba(123, 108, 75, .32)
+}
+
+.chapter-visual:after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 45px rgba(0, 0, 0, .42);
+    background: linear-gradient(180deg, transparent 58%, rgba(8, 9, 9, .78) 100%)
+}
+
+.chapter-visual img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    transition: transform .65s ease, filter .3s ease
+}
+
+.chapter-visual:hover img {
+    transform: scale(1.018);
+    filter: contrast(1.04)
+}
+
+.chapter-visual figcaption {
+    position: absolute;
+    z-index: 1;
+    left: 18px;
+    right: 18px;
+    bottom: 14px;
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+    color: #eee4cc;
+    text-shadow: 0 2px 8px #000
+}
+
+.chapter-visual figcaption span {
+    color: #d0b874;
+    font: 11px "Special Elite";
+    letter-spacing: .18em
+}
+
+.chapter-visual figcaption b {
+    font-size: 12px;
+    letter-spacing: .12em
+}
+
 .skill {
     color: var(--red);
     letter-spacing: .15em;
@@ -671,6 +727,19 @@ footer {
         flex-direction: column
     }
 
+    .chapter-visual {
+        margin-top: 22px;
+        box-shadow: 4px 5px 0 rgba(123, 108, 75, .28)
+    }
+
+    .chapter-visual figcaption span {
+        display: none
+    }
+
+    .chapter-visual figcaption {
+        justify-content: flex-end
+    }
+
     .function-tag {
         min-width: 100%
     }
@@ -712,5 +781,9 @@ footer {
 
     .rain {
         animation: none
+    }
+
+    .chapter-visual img {
+        transition: none
     }
 }

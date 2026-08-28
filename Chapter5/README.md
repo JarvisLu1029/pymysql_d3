@@ -53,6 +53,7 @@ Windows PowerShell 可使用 `$env:DB_HOST="127.0.0.1"` 的形式設定。
 - `templates/index.html`：Jinja2 遊戲頁面。
 - `static/css/detective.css`：偵探小說風格與響應式版面。
 - `static/js/game.js`：答案核對與逐關解鎖互動。
+- `static/images/chapters/`：六個案件階段的動畫風格情境插畫。
 
 ## 安全提醒
 
