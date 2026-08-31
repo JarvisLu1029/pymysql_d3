@@ -334,6 +334,7 @@ main {
 .chapter-visual img {
     display: block;
     width: 100%;
+    height: 350px;
     aspect-ratio: 16 / 9;
     object-fit: cover;
     transition: transform .65s ease, filter .3s ease
