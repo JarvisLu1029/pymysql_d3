@@ -35,6 +35,10 @@ CASE_START = "2026-08-20 21:10:00"
 CASE_END = "2026-08-20 21:35:00"
 VISIT_START = "2026-08-20 18:00:00"
 VISIT_END = "2026-08-20 22:00:00"
+HUMANOID_FOOTPRINT_MIN = 23.0
+HUMANOID_FOOTPRINT_MAX = 28.0
+NONHUMANOID_FOOTPRINT_MIN = 10.0
+NONHUMANOID_FOOTPRINT_MAX = 28.0
 
 
 @dataclass(frozen=True)
@@ -59,8 +63,8 @@ def _contains(rows: list[dict[str, Any]], *needles: str) -> bool:
 
 CHAPTERS = (
     Chapter(1, "案件卷宗", "黃金吐司消失", "SELECT / View", "黃金吐司從哪一個房間消失？", "例如：R00", "load_case_brief", (), "預期欄位：case_name、estimated_start、discovered_at、crime_room、mission", ("r03", "Ｒ０３"), lambda rows: _contains(rows, "消失的黃金吐司", "R03")),
-    Chapter(2, "門禁紀錄", "六名夜間訪客", "WHERE / BETWEEN", "2026 年 8 月 20 日晚上 18:00 至 22:00，依進入時間成功進入 R03 的六位人員編號是？", "例如：101,102,103,104,105,106", "find_successful_r03_entries", (VISIT_START, VISIT_END), "預期 6 筆；欄位：suspect_id、access_time，只可包含 SUCCESS + IN，並依時間排序", ("103,106,104,105,109,102",), lambda rows: len(rows) == 6 and _contains(rows, "102", "103", "104", "105", "106", "109")),
-    Chapter(3, "現場物證", "四組足跡與橘色痕跡", "WHERE / ORDER BY", "哪些人具有橘色痕跡？請依人員編號由小到大輸入四個姓名。", "例如：甲,乙,丙,丁", "find_physical_matches", (), "預期欄位：name、shoe_size、has_orange_trace，依 suspect_id 排序", ("淀治,帕瓦,波奇塔,彭德·佛傑",), lambda rows: len(rows) == 4 and _contains(rows, "淀治", "帕瓦", "波奇塔", "彭德·佛傑", "12.0", "23.5", "27.5")),
+    Chapter(2, "門禁紀錄", "八名夜間訪客", "WHERE / BETWEEN", "2026 年 8 月 20 日晚上 18:00 至 22:00，依進入時間成功進入 R03 的八位人員編號是？", "例如：101,102,103,104,105,106,107,108", "find_successful_r03_entries", (VISIT_START, VISIT_END), "預期 8 筆；欄位：suspect_id、access_time，只可包含 SUCCESS + IN，並依時間排序", ("103,106,111,112,104,105,109,102",), lambda rows: len(rows) == 8 and [str(row.get("suspect_id")) for row in rows] == ["103", "106", "111", "112", "104", "105", "109", "102"] and all("access_time" in row for row in rows)),
+    Chapter(3, "現場物證", "人型與非人型足跡", "AND / OR / BETWEEN", "套用人型與非人型的不同足跡區間後，哪些橘色痕跡嫌疑人符合？請依人員編號輸入四個姓名。", "例如：甲,乙,丙,丁", "find_physical_matches", (HUMANOID_FOOTPRINT_MIN, HUMANOID_FOOTPRINT_MAX, NONHUMANOID_FOOTPRINT_MIN, NONHUMANOID_FOOTPRINT_MAX), "預期欄位：name、shoe_size、is_humanoid、has_orange_trace；人型 23.0～28.0，非人型 10.0～28.0", ("淀治,帕瓦,波奇塔,彭德",), lambda rows: len(rows) == 4 and [str(row.get("name")) for row in rows] == ["淀治", "帕瓦", "波奇塔", "彭德"] and all({"shoe_size", "is_humanoid", "has_orange_trace"}.issubset(row) for row in rows)),
     Chapter(4, "影像與消費", "無臉的橘色身影", "多表 JOIN", "監視器攜帶物與消費品項共同指向什麼物件？", "輸入物件名稱", "find_camera_and_purchase_clues", (CASE_START, CASE_END), "預期欄位：name、seen_time、location、carrying、item_name", ("銀色保溫袋", "保溫袋"), lambda rows: bool(rows) and _contains(rows, "銀色保溫袋", "淀治")),
     Chapter(5, "數位鑑識", "被刪除的斷電計畫", "LIKE / 自我 JOIN", "是誰要求波奇塔在 21:10 左右進行斷電？", "輸入姓名", "find_deleted_messages", ("斷電",), "預期欄位：sender_name、receiver_name、sent_at、message_text、is_deleted", ("淀治",), lambda rows: bool(rows) and _contains(rows, "淀治", "波奇塔", "斷電")),
     Chapter(6, "最終逮捕令", "纖維、保溫袋與咬痕", "DISTINCT / 多表 JOIN", "所有數位證據唯一指向誰？", "輸入完整姓名", "find_prime_suspect", (CASE_START, CASE_END), "預期欄位：suspect_id、name、job_title，且只能有一列", ("淀治", "102"), lambda rows: len(rows) == 1 and _contains(rows, "102", "淀治", "公安惡魔獵人")),

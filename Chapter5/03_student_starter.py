@@ -40,7 +40,7 @@ def load_case_brief(connection):
 
 def find_successful_r03_entries(connection, start_time, end_time):
     """第二關：回傳指定晚間成功進入 R03 的 suspect_id、access_time。"""
-    # TODO：使用 WHERE、BETWEEN、ORDER BY，找出六名訪客並以 %s 傳入起訖時間。
+    # TODO：使用 WHERE、BETWEEN、ORDER BY，找出八名訪客並以 %s 傳入起訖時間。
     query = """
         SELECT suspect_id, access_time
         FROM access_logs
@@ -53,9 +53,13 @@ def find_successful_r03_entries(connection, start_time, end_time):
     return run_query(connection, query, (start_time, end_time))
 
 
-def find_physical_matches(connection):
-    """第三關：回傳有橘色痕跡者的 name、shoe_size、has_orange_trace。"""
-    # TODO：查出四名橘色痕跡嫌疑人，並依 suspect_id 排序以比較足跡尺寸。
+def find_physical_matches(connection, humanoid_min, humanoid_max, nonhumanoid_min, nonhumanoid_max):
+    """第三關：依外型套用足跡區間，回傳四名具有橘色痕跡的嫌疑人。
+
+    欄位：name、shoe_size、is_humanoid、has_orange_trace。
+    """
+    # TODO：使用 AND、OR、BETWEEN 與 is_humanoid；四個區間值都必須用 %s 參數化。
+    # 提醒：OR 的兩組條件要用括號包住，最後依 suspect_id 排序。
     raise NotImplementedError("請完成 find_physical_matches()")
 
 
