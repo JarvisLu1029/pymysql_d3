@@ -38,10 +38,26 @@ function updateProgress(unlocked) {
   document.querySelectorAll(".case-dots li").forEach((item) => {
     const chapter = Number(item.dataset.chapter);
     const tab = item.querySelector(".case-tab");
+    const isViewable = chapter <= Math.min(unlocked + 1, totalChapters);
     item.classList.toggle("done", chapter <= unlocked);
     item.classList.toggle("active", unlocked < totalChapters && chapter === unlocked + 1);
-    if (tab) tab.disabled = chapter > Math.min(unlocked + 1, totalChapters);
+    item.classList.toggle("locked", !isViewable);
+    if (tab) {
+      tab.disabled = !isViewable;
+      tab.setAttribute("aria-label", isViewable ? `第 ${chapter} 關，${tab.dataset.label}` : `第 ${chapter} 關，尚未解鎖`);
+      const label = tab.querySelector("small");
+      if (label) label.textContent = isViewable ? tab.dataset.label : "待解鎖";
+    }
   });
+}
+
+function revealFinalChapterImage() {
+  const visual = panelContainer?.querySelector("[data-final-reveal]");
+  if (!visual) return false;
+
+  visual.classList.add("is-revealed");
+  visual.querySelector("img")?.removeAttribute("aria-hidden");
+  return true;
 }
 
 function bindAnswerForm() {
@@ -69,7 +85,8 @@ function bindAnswerForm() {
 
       if (result.ok) {
         updateProgress(result.unlocked);
-        window.setTimeout(() => showPanel(result.next_panel), 500);
+        const revealedFinalImage = Number(data.get("level")) === 6 && revealFinalChapterImage();
+        window.setTimeout(() => showPanel(result.next_panel), revealedFinalImage ? 3200 : 500);
       }
     } catch (_) {
       feedback.textContent = "鑑識系統暫時無法回應，請確認伺服器仍在執行。";
@@ -80,8 +97,35 @@ function bindAnswerForm() {
   });
 }
 
+async function refreshQuery(chapterNumber, button) {
+  if (!panelContainer || panelContainer.dataset.loading === "true") return;
+  const status = panelContainer.querySelector(".query-refresh-status");
+  panelContainer.dataset.loading = "true";
+  panelContainer.setAttribute("aria-busy", "true");
+  button.disabled = true;
+  button.classList.add("loading");
+  if (status) status.textContent = "正在重新執行 SQL 查詢……";
+
+  try {
+    const response = await fetch(`/api/query/${chapterNumber}`, {cache: "no-store"});
+    if (!response.ok) throw new Error(await response.text());
+    panelContainer.innerHTML = await response.text();
+    bindPanelActions();
+  } catch (_) {
+    button.disabled = false;
+    button.classList.remove("loading");
+    if (status) status.textContent = "查詢 API 暫時無法回應，請確認伺服器仍在執行。";
+  } finally {
+    panelContainer.dataset.loading = "false";
+    panelContainer.removeAttribute("aria-busy");
+  }
+}
+
 function bindPanelActions() {
   bindAnswerForm();
+  panelContainer?.querySelector("[data-query-refresh]")?.addEventListener("click", (event) => {
+    refreshQuery(Number(event.currentTarget.dataset.chapter), event.currentTarget);
+  });
   panelContainer?.querySelector(".review-return")?.addEventListener("click", (event) => {
     showPanel(Number(event.currentTarget.dataset.panel));
   });

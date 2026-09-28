@@ -54,6 +54,7 @@ class Chapter:
     result_hint: str
     answers: tuple[str, ...]
     validate: Callable[[list[dict[str, Any]]], bool]
+    unordered_answer: bool = False
 
 
 def _contains(rows: list[dict[str, Any]], *needles: str) -> bool:
@@ -62,12 +63,12 @@ def _contains(rows: list[dict[str, Any]], *needles: str) -> bool:
 
 
 CHAPTERS = (
-    Chapter(1, "案件卷宗", "黃金吐司消失", "SELECT / View", "黃金吐司從哪一個房間消失？", "例如：R00", "load_case_brief", (), "預期欄位：case_name、estimated_start、discovered_at、crime_room、mission", ("r03", "Ｒ０３"), lambda rows: _contains(rows, "消失的黃金吐司", "R03")),
-    Chapter(2, "門禁紀錄", "八名夜間訪客", "WHERE / BETWEEN", "2026 年 8 月 20 日晚上 18:00 至 22:00，依進入時間成功進入 R03 的八位人員編號是？", "例如：101,102,103,104,105,106,107,108", "find_successful_r03_entries", (VISIT_START, VISIT_END), "預期 8 筆；欄位：suspect_id、access_time，只可包含 SUCCESS + IN，並依時間排序", ("103,106,111,112,104,105,109,102",), lambda rows: len(rows) == 8 and [str(row.get("suspect_id")) for row in rows] == ["103", "106", "111", "112", "104", "105", "109", "102"] and all("access_time" in row for row in rows)),
-    Chapter(3, "現場物證", "人型與非人型足跡", "AND / OR / BETWEEN", "套用人型與非人型的不同足跡區間後，哪些橘色痕跡嫌疑人符合？請依人員編號輸入四個姓名。", "例如：甲,乙,丙,丁", "find_physical_matches", (HUMANOID_FOOTPRINT_MIN, HUMANOID_FOOTPRINT_MAX, NONHUMANOID_FOOTPRINT_MIN, NONHUMANOID_FOOTPRINT_MAX), "預期欄位：name、shoe_size、is_humanoid、has_orange_trace；人型 23.0～28.0，非人型 10.0～28.0", ("淀治,帕瓦,波奇塔,彭德",), lambda rows: len(rows) == 4 and [str(row.get("name")) for row in rows] == ["淀治", "帕瓦", "波奇塔", "彭德"] and all({"shoe_size", "is_humanoid", "has_orange_trace"}.issubset(row) for row in rows)),
-    Chapter(4, "影像與消費", "無臉的橘色身影", "多表 JOIN", "監視器攜帶物與消費品項共同指向什麼物件？", "輸入物件名稱", "find_camera_and_purchase_clues", (CASE_START, CASE_END), "預期欄位：name、seen_time、location、carrying、item_name", ("銀色保溫袋", "保溫袋"), lambda rows: bool(rows) and _contains(rows, "銀色保溫袋", "淀治")),
-    Chapter(5, "數位鑑識", "被刪除的斷電計畫", "LIKE / 自我 JOIN", "是誰要求波奇塔在 21:10 左右進行斷電？", "輸入姓名", "find_deleted_messages", ("斷電",), "預期欄位：sender_name、receiver_name、sent_at、message_text、is_deleted", ("淀治",), lambda rows: bool(rows) and _contains(rows, "淀治", "波奇塔", "斷電")),
-    Chapter(6, "最終逮捕令", "纖維、保溫袋與咬痕", "DISTINCT / 多表 JOIN", "所有數位證據唯一指向誰？", "輸入完整姓名", "find_prime_suspect", (CASE_START, CASE_END), "預期欄位：suspect_id、name、job_title，且只能有一列", ("淀治", "102"), lambda rows: len(rows) == 1 and _contains(rows, "102", "淀治", "公安惡魔獵人")),
+    Chapter(1, "案件卷宗", "黃金吐司消失", "SELECT / View", "黃金吐司從哪一個房間消失？", "例如：R00", "load_case_brief", (), "預期 1 筆；欄位：case_name、estimated_start、discovered_at、crime_room、mission", ("r03", "Ｒ０３"), lambda rows: _contains(rows, "消失的黃金吐司", "R03")),
+    Chapter(2, "門禁紀錄", "七名夜間訪客", "WHERE / BETWEEN", "2026 年 8 月 20 日晚上 18:00 至 22:00，依進入時間成功進入 R03 的七位人員編號是？", "例如：101,102,103,104,105,106,107", "find_successful_r03_entries", (), "預期 7 筆；欄位：suspect_id、name、access_time；只保留 R03 的 SUCCESS + IN，並依 access_time 排序", ("103,106,111,112,105,109,102",), lambda rows: len(rows) == 7 and [str(row.get("suspect_id")) for row in rows] == ["103", "106", "111", "112", "105", "109", "102"] and all("access_time" in row for row in rows)),
+    Chapter(3, "現場物證", "人型與非人型足跡", "AND / OR / BETWEEN", "套用人型與非人型的不同足跡區間後，哪些橘色痕跡嫌疑人符合？請依人員編號由小到大輸入五個編號。", "例如：101,102,103,104,105", "find_physical_matches", (HUMANOID_FOOTPRINT_MIN, HUMANOID_FOOTPRINT_MAX, NONHUMANOID_FOOTPRINT_MIN, NONHUMANOID_FOOTPRINT_MAX), "預期 5 筆；欄位：suspect_id、name、shoe_size、is_humanoid、has_orange_trace；人型 23.0～28.0，非人型 10.0～28.0", ("102,104,105,109,111",), lambda rows: len(rows) == 5 and [str(row.get("suspect_id")) for row in rows] == ["102", "104", "105", "109", "111"] and all({"name", "shoe_size", "is_humanoid", "has_orange_trace"}.issubset(row) for row in rows)),
+    Chapter(4, "影像與消費", "背著袋子的橘色身影", "多表 JOIN", "查詢結果中，哪些四人與銀色保溫袋共同出現？請輸入不重複的人名，順序不限。", "例如：甲,乙,丙,丁（順序不限）", "find_camera_and_purchase_clues", (CASE_START, CASE_END), "預期 5 筆、4 位不同人員；欄位：name、seen_time、location、carrying、item_name，其中一人會出現兩次", ("帕瓦,淀治,蕾潔,約兒",), lambda rows: bool(rows) and _contains(rows, "蕾潔", "帕瓦", "淀治", "約兒", "銀色保溫袋"), True),
+    Chapter(5, "數位鑑識", "被刪除的訊息", "LIKE / 自我 JOIN", "關鍵字查詢結果中，哪些寄件人的訊息有被刪除？請輸入三位不重複的人名，順序不限。", "例如：甲,乙,丙（順序不限）", "find_deleted_messages", (("斷電", "線路", "保溫袋", "巡邏"),), "預期 9 筆，其中 4 筆 is_deleted 為 TRUE，涉及 3 位不同寄件者；欄位：sender_name、receiver_name、sent_at、message_text、is_deleted", ("波奇塔,淀治,約兒",), lambda rows: bool(rows) and _contains(rows, "淀治", "波奇塔", "斷電", "約兒"), True),
+    Chapter(6, "最終逮捕令", "纖維、保溫袋與咬痕", "DISTINCT / 多表 JOIN", "所有數位證據唯一指向誰？", "輸入完整姓名", "find_prime_suspect", (CASE_START, CASE_END), "預期 1 筆；欄位：suspect_id、name、job_title，且只能有一位嫌犯", ("淀治", "102"), lambda rows: len(rows) == 1 and _contains(rows, "102", "淀治", "公安惡魔獵人")),
 )
 
 
@@ -81,6 +82,14 @@ def create_app() -> FastAPI:
     app.add_middleware(SessionMiddleware, secret_key=os.getenv("SESSION_SECRET", "local-detective-classroom-secret"), same_site="lax")
     app.mount("/static", NoCacheStaticFiles(directory=BASE_DIR / "static"), name="static")
     templates = Jinja2Templates(directory=BASE_DIR / "templates")
+
+    @app.get("/schema", response_class=HTMLResponse)
+    async def schema(request: Request):
+        return templates.TemplateResponse(
+            request=request,
+            name="schema.html",
+            context={"active_page": "schema"},
+        )
 
     @app.get("/", response_class=HTMLResponse)
     async def index(request: Request):
@@ -122,6 +131,11 @@ def create_app() -> FastAPI:
             "resume_panel": unlocked + 1 if unlocked < total else 0,
         })
 
+    @app.get("/api/query/{chapter_number}", response_class=HTMLResponse)
+    async def refresh_query(request: Request, chapter_number: int):
+        """重新執行目前卷宗的學生 SQL，並回傳更新後的卷宗內容。"""
+        return await chapter_panel(request, chapter_number)
+
     @app.post("/api/check")
     async def check_answer(request: Request, payload: AnswerPayload):
         unlocked = _get_unlocked(request)
@@ -133,7 +147,7 @@ def create_app() -> FastAPI:
             return JSONResponse({"ok": False, "message": "先完成本關 function，讓查詢成功後才能提交推理。"}, status_code=422)
         if not chapter.validate(rows):
             return JSONResponse({"ok": False, "message": "查詢結果尚未符合本關要求，請檢查 SQL 條件與欄位。"}, status_code=422)
-        if _normalize(payload.answer) not in {_normalize(answer) for answer in chapter.answers}:
+        if not _answer_matches(chapter, payload.answer):
             return {"ok": False, "message": "推理尚有矛盾。重新比對上方查詢結果。"}
         next_unlocked = min(unlocked + 1, len(CHAPTERS))
         request.session["unlocked"] = next_unlocked
@@ -160,6 +174,24 @@ def _get_unlocked(request: Request) -> int:
 
 def _normalize(value: str) -> str:
     return re.sub(r"[\s,，、;；]", "", value).casefold()
+
+
+def _normalize_unordered_answer(value: str) -> frozenset[str]:
+    """將多個人名正規化成不計順序的集合。"""
+    return frozenset(
+        token.casefold()
+        for token in re.split(r"[\s,，、;；]+", value.strip())
+        if token
+    )
+
+
+def _answer_matches(chapter: Chapter, value: str) -> bool:
+    if chapter.unordered_answer:
+        submitted = _normalize_unordered_answer(value)
+        return bool(submitted) and submitted in {
+            _normalize_unordered_answer(answer) for answer in chapter.answers
+        }
+    return _normalize(value) in {_normalize(answer) for answer in chapter.answers}
 
 
 def _load_student_module():

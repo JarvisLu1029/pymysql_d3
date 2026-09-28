@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#12100d">
+  <title>資料表架構｜消失的黃金吐司</title>
+  <meta name="description" content="查看消失的黃金吐司案件資料庫的資料表、欄位與關聯。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700;900&family=Special+Elite&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', path='/css/detective.css') }}">
+</head>
+<body class="schema-page">
+  <div class="rain" aria-hidden="true"></div>
+  <nav class="site-nav" aria-label="主要導覽">
+    <a class="brand" href="/">CASE 0820</a>
+    <div><a href="/">線索調查</a><a class="active" href="/schema" aria-current="page">資料表架構</a></div>
+  </nav>
+
+  <header class="schema-hero">
+    <p class="eyebrow">DATABASE BLUEPRINT · detective_academy</p>
+    <h1>案件資料表<span>架構</span></h1>
+    <p>先讀懂資料如何相連，再決定 SQL 要從哪張表開始。</p>
+    <div class="schema-legend" aria-label="圖例">
+      <span><i class="key-dot primary"></i>PK 主鍵</span>
+      <span><i class="key-dot foreign"></i>FK 外鍵</span>
+      <span><i class="relation-line"></i>資料表關聯</span>
+    </div>
+  </header>
+
+  <main class="schema-main">
+    <section class="schema-map" aria-labelledby="schema-map-title">
+      <div class="schema-heading">
+        <div><p class="section-kicker">ENTITY RELATIONSHIP MAP</p><h2 id="schema-map-title">七張資料表，一條證據鏈</h2></div>
+        <a class="back-to-case" href="/">開始調查 <span>→</span></a>
+      </div>
+
+      <div class="relationship-board">
+        <svg class="relationship-lines" viewBox="0 0 1000 850" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M500 320 L500 360 L170 360 L170 405" />
+          <path d="M500 320 L500 405" />
+          <path d="M500 320 L500 360 L830 360 L830 405" />
+          <path d="M500 320 L500 720 L300 720 L300 790" />
+          <path d="M170 650 L170 690 L620 690 L620 710" />
+        </svg>
+
+        <article class="schema-table hub">
+          <header><span>核心名冊</span><h3>suspects</h3></header>
+          <ul>
+            <li><b class="pk">PK</b><code>suspect_id</code><em>INT</em></li>
+            <li><code>name</code><em>VARCHAR(30)</em></li>
+            <li><code>job_title</code><em>VARCHAR(50)</em></li>
+            <li><code>is_humanoid</code><em>BOOLEAN</em></li>
+            <li><code>shoe_size</code><em>DECIMAL(3,1)</em></li>
+            <li><code>phone_last4</code><em>CHAR(4)</em></li>
+            <li><code>has_orange_trace</code><em>BOOLEAN</em></li>
+            <li><code>interview_note</code><em>VARCHAR(255)</em></li>
+          </ul>
+        </article>
+
+        <article class="schema-table access">
+          <header><span>門禁</span><h3>access_logs</h3></header>
+          <ul>
+            <li><b class="pk">PK</b><code>log_id</code><em>INT</em></li>
+            <li><b class="fk">FK</b><code>suspect_id</code><em>INT</em></li>
+            <li><b class="fk">FK</b><code>room_id</code><em>CHAR(3)</em></li>
+            <li><code>action</code><em>ENUM</em></li>
+            <li><code>access_time</code><em>DATETIME</em></li>
+            <li><code>result</code><em>ENUM</em></li>
+          </ul>
+        </article>
+
+        <article class="schema-table camera">
+          <header><span>影像</span><h3>camera_sightings</h3></header>
+          <ul>
+            <li><b class="pk">PK</b><code>sighting_id</code><em>INT</em></li>
+            <li><b class="fk">FK</b><code>suspect_id</code><em>INT NULL</em></li>
+            <li><code>camera_code</code><em>VARCHAR(10)</em></li>
+            <li><code>seen_time</code><em>DATETIME</em></li>
+            <li><code>location</code><em>VARCHAR(50)</em></li>
+            <li><code>clothing_color</code><em>VARCHAR(20)</em></li>
+            <li><code>carrying</code><em>VARCHAR(50)</em></li>
+            <li><code>confidence</code><em>DECIMAL(4,2)</em></li>
+          </ul>
+        </article>
+
+        <article class="schema-table orders">
+          <header><span>消費</span><h3>cafe_orders</h3></header>
+          <ul>
+            <li><b class="pk">PK</b><code>order_id</code><em>INT</em></li>
+            <li><b class="fk">FK</b><code>suspect_id</code><em>INT</em></li>
+            <li><code>ordered_at</code><em>DATETIME</em></li>
+            <li><code>item_name</code><em>VARCHAR(50)</em></li>
+            <li><code>amount</code><em>INT</em></li>
+            <li><code>payment_last4</code><em>CHAR(4)</em></li>
+          </ul>
+        </article>
+
+        <article class="schema-table messages">
+          <header><span>通訊</span><h3>messages</h3></header>
+          <ul>
+            <li><b class="pk">PK</b><code>message_id</code><em>INT</em></li>
+            <li><b class="fk">FK</b><code>sender_id</code><em>INT</em></li>
+            <li><b class="fk">FK</b><code>receiver_id</code><em>INT</em></li>
+            <li><code>sent_at</code><em>DATETIME</em></li>
+            <li><code>message_text</code><em>VARCHAR(255)</em></li>
+            <li><code>is_deleted</code><em>BOOLEAN</em></li>
+          </ul>
+        </article>
+
+        <article class="schema-table rooms">
+          <header><span>場域</span><h3>rooms</h3></header>
+          <ul>
+            <li><b class="pk">PK</b><code>room_id</code><em>CHAR(3)</em></li>
+            <li><code>room_name</code><em>VARCHAR(50)</em></li>
+            <li><code>floor_no</code><em>INT</em></li>
+          </ul>
+        </article>
+
+        <article class="schema-table evidence">
+          <header><span>現場物證 · 獨立表</span><h3>evidence</h3></header>
+          <ul>
+            <li><b class="pk">PK</b><code>evidence_id</code><em>INT</em></li>
+            <li><code>found_at</code><em>DATETIME</em></li>
+            <li><code>location</code><em>VARCHAR(50)</em></li>
+            <li><code>evidence_type</code><em>VARCHAR(50)</em></li>
+            <li><code>detail</code><em>VARCHAR(255)</em></li>
+          </ul>
+        </article>
+      </div>
+
+      <section class="schema-view" aria-labelledby="case-view-title">
+        <div><span>READ-ONLY VIEW</span><h3 id="case-view-title">case_brief</h3></div>
+        <p>第一關的案情卡，彙整 <code>case_name</code>、<code>estimated_start</code>、<code>discovered_at</code>、<code>crime_room</code> 與 <code>mission</code>。</p>
+      </section>
+    </section>
+
+    <aside class="join-notes" aria-label="關聯提示">
+      <span>JOIN 筆記</span>
+      <p><code>access_logs.room_id</code> → <code>rooms.room_id</code></p><i></i>
+      <p>其餘 FK 均連到 <code>suspects.suspect_id</code></p><i></i>
+      <p><code>messages</code> 需對嫌疑人表 JOIN 兩次</p>
+    </aside>
+  </main>
+
+  <footer><span>PyMySQL DETECTIVE CLASSROOM</span><span>先看關聯，再寫 JOIN。</span></footer>
+</body>
+</html>

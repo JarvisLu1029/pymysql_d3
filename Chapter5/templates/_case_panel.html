@@ -2,14 +2,20 @@
 <article class="case-file" id="active-case" data-panel="{{ chapter.number }}">
   <div class="file-tab">卷宗 {{ "%02d"|format(chapter.number) }} · {{ chapter.label }}</div><div class="stamp">{% if is_current %}CLASSIFIED{% else %}REVIEW{% endif %}</div>
   <div class="chapter-head"><div><p class="skill">SQL 技能：{{ chapter.skill }}</p><h2>{{ chapter.title }}</h2></div><div class="function-tag"><span>使用函式</span><code>{{ chapter.function_name }}()</code></div></div>
-  <figure class="chapter-visual">
-    <img src="/static/images/chapters/chapter-{{ "%02d"|format(chapter.number) }}.png" alt="{{ chapter.title }}章節情境插畫" width="1536" height="864">
+  <figure class="chapter-visual{% if chapter.number == 6 and is_current %} chapter-visual--locked{% endif %}"{% if chapter.number == 6 and is_current %} data-final-reveal aria-label="答對最終關後顯示的案件重建圖片"{% endif %}>
+    <img src="/static/images/chapters/chapter-{{ "%02d"|format(chapter.number) }}.png" alt="{{ chapter.title }}章節情境插畫" width="1536" height="864"{% if chapter.number == 6 and is_current %} aria-hidden="true"{% endif %}>
+    {% if chapter.number == 6 and is_current %}<div class="chapter-visual__lock" aria-hidden="true"><span>FINAL EVIDENCE</span><b>?????</b></div>{% endif %}
     <figcaption><span>CASE RECONSTRUCTION</span><b>卷宗 {{ "%02d"|format(chapter.number) }} 情境重建</b></figcaption>
   </figure>
   <section class="evidence-output" aria-labelledby="evidence-heading">
-    <div class="section-label"><b>01</b><span id="evidence-heading">資料庫鑑識結果</span></div><p class="result-hint">{{ chapter.result_hint }}</p>
+    <div class="evidence-toolbar">
+      <div class="section-label"><b>01</b><span id="evidence-heading">資料庫鑑識結果</span></div>
+      <button class="query-refresh" type="button" data-query-refresh data-chapter="{{ chapter.number }}"><i aria-hidden="true">↻</i><span>重新執行 SQL</span></button>
+    </div>
+    <p class="query-refresh-status" role="status" aria-live="polite"></p>
+    <p class="result-hint">{{ chapter.result_hint }}</p>
     {% if query_error %}
-      <div class="query-state error"><span class="state-icon">!</span><div><strong>等待學生完成查詢</strong><code>{{ query_error }}</code><p>編輯 <b>03_student_starter.py</b> 後重新整理，本頁會重新載入 function。</p></div></div>
+      <div class="query-state error"><span class="state-icon">!</span><div><strong>等待學生完成查詢</strong><code>{{ query_error }}</code><p>編輯 <b>03_student_starter.py</b> 並儲存，再按「重新執行 SQL」。</p></div></div>
     {% elif not rows %}
       <div class="query-state empty"><span class="state-icon">?</span><div><strong>查詢成功，但沒有資料</strong><p>檢查資料表、條件與傳入參數是否正確。</p></div></div>
     {% else %}

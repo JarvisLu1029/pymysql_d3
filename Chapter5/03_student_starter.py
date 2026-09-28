@@ -34,32 +34,26 @@ def run_query(connection, sql, params=None):
 def load_case_brief(connection):
     """第一關：回傳 case_brief 的所有欄位。"""
     # TODO：使用 SELECT 查詢 case_brief View。
-    query = "SELECT * FROM case_brief;"
-    return run_query(connection, query)
+
+    raise NotImplementedError("請完成 load_case_brief()")
 
 
-def find_successful_r03_entries(connection, start_time, end_time):
+def find_successful_r03_entries(connection):
     """第二關：回傳指定晚間成功進入 R03 的 suspect_id、access_time。"""
-    # TODO：使用 WHERE、BETWEEN、ORDER BY，找出八名訪客並以 %s 傳入起訖時間。
-    query = """
-        SELECT suspect_id, access_time
-        FROM access_logs
-        WHERE result = 'SUCCESS'
-        AND action = 'IN'
-        AND room_id = 'R03'
-        AND access_time BETWEEN %s AND %s
-        ORDER BY access_time;
-    """
-    return run_query(connection, query, (start_time, end_time))
+    # TODO：使用 WHERE、BETWEEN、ORDER BY，找出七名訪客並以 %s 傳入起訖時間。
+
+    raise NotImplementedError("請完成 find_successful_r03_entries()")
+
 
 
 def find_physical_matches(connection, humanoid_min, humanoid_max, nonhumanoid_min, nonhumanoid_max):
-    """第三關：依外型套用足跡區間，回傳四名具有橘色痕跡的嫌疑人。
+    """第三關：依外型套用足跡區間，回傳五名具有橘色痕跡的嫌疑人。
 
-    欄位：name、shoe_size、is_humanoid、has_orange_trace。
+    欄位：suspect_id、name、shoe_size、is_humanoid、has_orange_trace。
     """
     # TODO：使用 AND、OR、BETWEEN 與 is_humanoid；四個區間值都必須用 %s 參數化。
     # 提醒：OR 的兩組條件要用括號包住，最後依 suspect_id 排序。
+
     raise NotImplementedError("請完成 find_physical_matches()")
 
 
@@ -67,23 +61,32 @@ def find_camera_and_purchase_clues(connection, start_time, end_time):
     """第四關：回傳姓名、seen_time、location、carrying、item_name。
 
     只保留監視器攜帶物與消費品項相同的人，使用 JOIN 串連三張表。
+    目前資料應回傳五筆，包含四位不同人員。
     """
+
+
     # TODO：JOIN suspects、camera_sightings、cafe_orders，並參數化時間。
     raise NotImplementedError("請完成 find_camera_and_purchase_clues()")
 
 
-def find_deleted_messages(connection, keyword):
-    """第五關：回傳已刪除且含關鍵字訊息的雙方姓名與訊息內容。
+def find_deleted_messages(connection, keywords):
+    """第五關：回傳含任一關鍵字訊息的雙方姓名與訊息內容（含已刪除訊息）。
 
+    keywords 是關鍵字 tuple，例如 ("斷電", "線路", "保溫袋", "巡邏")。
     欄位：sender_name、receiver_name、sent_at、message_text、is_deleted。
+    目前資料應回傳九筆，其中四筆已刪除，涉及三位不同寄件者。
     """
+
+
     # TODO：同一張 suspects 表要 JOIN 兩次；LIKE 的值也要當作參數。
     raise NotImplementedError("請完成 find_deleted_messages()")
 
 
 def find_prime_suspect(connection, start_time, end_time):
     """最終關：回傳唯一嫌犯的 suspect_id、name、job_title。"""
-    # TODO：以多表 JOIN 同時驗證五項條件；起訖時間用 %s 參數化。
+    # TODO：以多表 JOIN 同時驗證五項條件（足跡區間沿用第三關）；起訖時間用 %s 參數化。
+
+
     raise NotImplementedError("請完成 find_prime_suspect()")
 
 

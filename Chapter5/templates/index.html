@@ -10,10 +10,14 @@
 </head>
 <body>
   <div class="rain" aria-hidden="true"></div>
+  <nav class="site-nav" aria-label="主要導覽">
+    <a class="brand" href="/">CASE 0820</a>
+    <div><a class="active" href="/" aria-current="page">線索調查</a><a href="/schema" target="_blank">資料表架構</a></div>
+  </nav>
   <header class="masthead">
     <p class="eyebrow">DETECTIVE ACADEMY · CASE No. 0820</p><h1>消失的<br><span>黃金吐司</span></h1>
     <p class="lead">資料不會說謊。讓每一列查詢結果，成為你的證詞。</p>
-    <div class="case-meta" aria-label="案件摘要"><span>發現時間<strong>21:25</strong></span><span>案發地點<strong>黃金吐司保管庫 R03</strong></span><span>關係人<strong>12 名</strong></span></div>
+    <div class="case-meta" aria-label="案件摘要"><span>發現時間<strong>21:25</strong></span><span>案發地點<strong>黃金吐司保管庫</strong></span><span>關係人<strong>12 名</strong></span></div>
   </header>
   <main>
     <section class="progress-panel" aria-label="辦案進度">
@@ -21,8 +25,8 @@
       <div class="progress-track"><i style="width: {{ (unlocked / total * 100)|round }}%"></i></div>
       <ol class="case-dots" role="tablist" aria-label="案件卷宗">
         {% for item in chapters %}
-          <li data-chapter="{{ item.number }}" class="{% if item.number <= unlocked %}done{% elif item.number == unlocked + 1 %}active{% endif %}{% if chapter and item.number == chapter.number %} viewing{% endif %}">
-            <button class="case-tab" type="button" role="tab" data-chapter="{{ item.number }}" aria-controls="case-panel-container" aria-selected="{% if chapter and item.number == chapter.number %}true{% else %}false{% endif %}" {% if item.number > viewable_until %}disabled{% endif %}><span>{{ "%02d"|format(item.number) }}</span><small>{{ item.label }}</small></button>
+          <li data-chapter="{{ item.number }}" class="{% if item.number <= unlocked %}done{% elif item.number == unlocked + 1 %}active{% else %}locked{% endif %}{% if chapter and item.number == chapter.number %} viewing{% endif %}">
+            <button class="case-tab" type="button" role="tab" data-chapter="{{ item.number }}" data-label="{{ item.label }}" aria-label="{% if item.number > viewable_until %}第 {{ item.number }} 關，尚未解鎖{% else %}第 {{ item.number }} 關，{{ item.label }}{% endif %}" aria-controls="case-panel-container" aria-selected="{% if chapter and item.number == chapter.number %}true{% else %}false{% endif %}" {% if item.number > viewable_until %}disabled{% endif %}><span>{{ "%02d"|format(item.number) }}</span><small>{% if item.number > viewable_until %}待解鎖{% else %}{{ item.label }}{% endif %}</small></button>
           </li>
         {% endfor %}
       </ol>

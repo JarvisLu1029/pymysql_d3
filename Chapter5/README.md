@@ -14,23 +14,12 @@
    ```bash
    mysql -u root -p < 01_detective_case.sql
    ```
-
-2. 建立權限受限的學生帳號（由教師以管理者執行）：
-
-   ```sql
-   CREATE USER IF NOT EXISTS 'detective_student'@'%'
-     IDENTIFIED BY '請換成課堂密碼';
-   GRANT SELECT ON detective_academy.* TO 'detective_student'@'%';
-   FLUSH PRIVILEGES;
-   ```
-
-3. 回到專案根目錄安裝套件：
+2. 回到專案根目錄安裝套件：
 
    ```bash
    pip install -r requirements.txt
    ```
-
-4. 設定環境變數並執行：
+3. 設定環境變數並執行：
 
    ```bash
    export DB_HOST=127.0.0.1
@@ -51,9 +40,13 @@ Windows PowerShell 可使用 `$env:DB_HOST="127.0.0.1"` 的形式設定。
 
 - `app.py`：FastAPI 路由、學生 function 載入、查詢檢核與關卡 session。
 - `templates/index.html`：Jinja2 遊戲頁面。
+- `templates/schema.html`：案件資料表、欄位、主外鍵與 JOIN 關聯圖。
 - `static/css/detective.css`：偵探小說風格與響應式版面。
 - `static/js/game.js`：答案核對與逐關解鎖互動。
 - `static/images/chapters/`：六個案件階段的動畫風格情境插畫。
+
+網頁上方可在「線索調查」與「資料表架構」之間切換。未解鎖的關卡只會顯示「待解鎖」；查詢結果與答案都正確後，系統才會揭露下一個線索名稱與內容。
+學生修改並儲存 SQL 後，可按卷宗內的「重新執行 SQL」呼叫 `/api/query/{chapter_number}`，只更新目前的查詢結果，不必重新整理整個網頁。
 
 ## 安全提醒
 
